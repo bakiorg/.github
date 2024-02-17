@@ -50,7 +50,7 @@ jobs:
       - name: Commit changes from 'pin-github-actions'
         run: |
           set -x
-          
+
           if git diff --exit-code --quiet -- .github/workflows/; then
             echo "No changes in .github/workflows/"
             exit 0
