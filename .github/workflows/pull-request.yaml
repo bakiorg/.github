@@ -6,5 +6,3 @@ on:
 jobs:
   pull-request:
     uses: ./.github/workflows/pin-github-actions-versions.yaml
-    with:
-

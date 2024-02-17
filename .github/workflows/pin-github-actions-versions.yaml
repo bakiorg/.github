@@ -1,5 +1,10 @@
 on:
   workflow_call:
+    inputs:
+      dummy:
+        required: false
+        type: string
+        default: ""
 
 jobs:
   pin-github-actions-versions:
