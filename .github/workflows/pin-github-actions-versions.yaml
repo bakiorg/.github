@@ -18,18 +18,21 @@ jobs:
           set -x 
           npm install -g pin-github-action
 
-      - name: Checkout
-        uses: actions/checkout@v4.1.1
-        with:
-          fetch-depth: 0
-          ref: ${{ inputs.github_ref }}
-
       - name: Create token for GitHub App 'bakiorg-github'
         id: create-token-for-github-app-bakiorg-github
         uses: actions/create-github-app-token@v1.8.0
         with:
           app-id: ${{ vars.BAKIORG_GITHUB_APP_ID }}
           private-key: ${{ secrets.BAKIORG_GITHUB_APP_PRIVATE_KEY }}
+
+      - name: Checkout
+        uses: actions/checkout@v4.1.1
+        with:
+          fetch-depth: 0
+          ref: ${{ inputs.github_ref }}
+
+        env:
+          GITHUB_TOKEN: ${{ steps.create-token-for-github-app-bakiorg-github.outputs.token }}
 
       - name: Run 'pin-github-action'
         continue-on-error: true
