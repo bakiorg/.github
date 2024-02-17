@@ -1,0 +1,455 @@
+{
+  "version": 4,
+  "terraform_version": "1.7.3",
+  "serial": 76,
+  "lineage": "4bf33d8e-9469-988f-dcd7-f94d7ca62638",
+  "outputs": {},
+  "resources": [
+    {
+      "mode": "managed",
+      "type": "github_organization_settings",
+      "name": "bakiorg_settings",
+      "provider": "provider[\"registry.terraform.io/integrations/github\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "advanced_security_enabled_for_new_repositories": false,
+            "billing_email": "bazestamatovski@gmail.com",
+            "blog": "",
+            "company": "",
+            "default_repository_permission": "write",
+            "dependabot_alerts_enabled_for_new_repositories": false,
+            "dependabot_security_updates_enabled_for_new_repositories": false,
+            "dependency_graph_enabled_for_new_repositories": false,
+            "description": "",
+            "email": "",
+            "has_organization_projects": false,
+            "has_repository_projects": false,
+            "id": "160286765",
+            "location": "",
+            "members_can_create_internal_repositories": false,
+            "members_can_create_pages": false,
+            "members_can_create_private_pages": false,
+            "members_can_create_private_repositories": false,
+            "members_can_create_public_pages": false,
+            "members_can_create_public_repositories": false,
+            "members_can_create_repositories": false,
+            "members_can_fork_private_repositories": false,
+            "name": "bakiorg",
+            "secret_scanning_enabled_for_new_repositories": false,
+            "secret_scanning_push_protection_enabled_for_new_repositories": false,
+            "twitter_username": "",
+            "web_commit_signoff_required": false
+          },
+          "sensitive_attributes": [],
+          "private": "bnVsbA=="
+        }
+      ]
+    },
+    {
+      "module": "module.github",
+      "mode": "managed",
+      "type": "github_actions_secret",
+      "name": "repository_secret",
+      "provider": "provider[\"registry.terraform.io/integrations/github\"]",
+      "instances": [
+        {
+          "index_key": "bakiorg_github_app_id",
+          "schema_version": 0,
+          "attributes": {
+            "created_at": "2024-02-17 09:32:37 +0000 UTC",
+            "encrypted_value": "",
+            "id": ".github:BAKIORG_GITHUB_APP_ID",
+            "plaintext_value": "",
+            "repository": ".github",
+            "secret_name": "BAKIORG_GITHUB_APP_ID",
+            "updated_at": "2024-02-17 09:32:37 +0000 UTC"
+          },
+          "sensitive_attributes": [],
+          "private": "bnVsbA==",
+          "dependencies": [
+            "module.github.github_repository.repository"
+          ]
+        },
+        {
+          "index_key": "bakiorg_github_app_private_key",
+          "schema_version": 0,
+          "attributes": {
+            "created_at": "2024-02-17 09:32:36 +0000 UTC",
+            "encrypted_value": "",
+            "id": ".github:BAKIORG_GITHUB_APP_PRIVATE_KEY",
+            "plaintext_value": "",
+            "repository": ".github",
+            "secret_name": "BAKIORG_GITHUB_APP_PRIVATE_KEY",
+            "updated_at": "2024-02-17 09:32:36 +0000 UTC"
+          },
+          "sensitive_attributes": [],
+          "private": "bnVsbA==",
+          "dependencies": [
+            "module.github.github_repository.repository"
+          ]
+        }
+      ]
+    },
+    {
+      "module": "module.github",
+      "mode": "managed",
+      "type": "github_branch",
+      "name": "main",
+      "provider": "provider[\"registry.terraform.io/integrations/github\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "branch": "main",
+            "etag": "W/\"0e30bf476dc9eb55f3018d81331493390349c2fa50c51608a7bb169b6644480a\"",
+            "id": ".github:main",
+            "ref": "refs/heads/main",
+            "repository": ".github",
+            "sha": "a797570dbaf1f6d799791d95f79cea37f326f684",
+            "source_branch": "main",
+            "source_sha": "488c8e536972d082067fa6d18787c2c17ed0d081"
+          },
+          "sensitive_attributes": [],
+          "private": "bnVsbA==",
+          "dependencies": [
+            "module.github.github_repository.repository"
+          ]
+        }
+      ]
+    },
+    {
+      "module": "module.github",
+      "mode": "managed",
+      "type": "github_branch_default",
+      "name": "main",
+      "provider": "provider[\"registry.terraform.io/integrations/github\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "branch": "main",
+            "etag": "W/\"b2581afbbe74022fea03384cfdec938ba52fe2e33ef3eedb88c3359950b93663\"",
+            "id": ".github",
+            "rename": false,
+            "repository": ".github"
+          },
+          "sensitive_attributes": [],
+          "private": "bnVsbA==",
+          "dependencies": [
+            "module.github.github_branch.main",
+            "module.github.github_repository.repository"
+          ]
+        }
+      ]
+    },
+    {
+      "module": "module.github",
+      "mode": "managed",
+      "type": "github_branch_protection_v3",
+      "name": "main",
+      "provider": "provider[\"registry.terraform.io/integrations/github\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "branch": "main",
+            "enforce_admins": true,
+            "etag": "W/\"9132c3024a10d58bdaf2156a5f523affe397860c1727daea24a5c161e6bbbc5c\"",
+            "id": ".github:main",
+            "repository": ".github",
+            "require_conversation_resolution": true,
+            "require_signed_commits": false,
+            "required_pull_request_reviews": [
+              {
+                "bypass_pull_request_allowances": [
+                  {
+                    "apps": [
+                      "bakiorg-github"
+                    ],
+                    "teams": [],
+                    "users": []
+                  }
+                ],
+                "dismiss_stale_reviews": true,
+                "dismissal_apps": [],
+                "dismissal_teams": [],
+                "dismissal_users": [],
+                "include_admins": false,
+                "require_code_owner_reviews": true,
+                "required_approving_review_count": 1
+              }
+            ],
+            "required_status_checks": [],
+            "restrictions": []
+          },
+          "sensitive_attributes": [],
+          "private": "bnVsbA==",
+          "dependencies": [
+            "module.github.github_branch.main",
+            "module.github.github_repository.repository"
+          ]
+        }
+      ]
+    },
+    {
+      "module": "module.github",
+      "mode": "managed",
+      "type": "github_issue_labels",
+      "name": "labels",
+      "provider": "provider[\"registry.terraform.io/integrations/github\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "id": ".github",
+            "label": [
+              {
+                "color": "FF0000",
+                "description": "",
+                "name": "Critical",
+                "url": "https://api.github.com/repos/bakiorg/.github/labels/Critical"
+              },
+              {
+                "color": "FF0000",
+                "description": "",
+                "name": "Urgent",
+                "url": "https://api.github.com/repos/bakiorg/.github/labels/Urgent"
+              }
+            ],
+            "repository": ".github"
+          },
+          "sensitive_attributes": [],
+          "private": "bnVsbA==",
+          "dependencies": [
+            "module.github.github_repository.repository"
+          ]
+        }
+      ]
+    },
+    {
+      "module": "module.github",
+      "mode": "managed",
+      "type": "github_repository",
+      "name": "repository",
+      "provider": "provider[\"registry.terraform.io/integrations/github\"]",
+      "instances": [
+        {
+          "schema_version": 1,
+          "attributes": {
+            "allow_auto_merge": false,
+            "allow_merge_commit": false,
+            "allow_rebase_merge": false,
+            "allow_squash_merge": true,
+            "allow_update_branch": true,
+            "archive_on_destroy": null,
+            "archived": false,
+            "auto_init": true,
+            "default_branch": "main",
+            "delete_branch_on_merge": true,
+            "description": "",
+            "etag": "W/\"b2581afbbe74022fea03384cfdec938ba52fe2e33ef3eedb88c3359950b93663\"",
+            "full_name": "bakiorg/.github",
+            "git_clone_url": "git://github.com/bakiorg/.github.git",
+            "gitignore_template": null,
+            "has_discussions": false,
+            "has_downloads": false,
+            "has_issues": false,
+            "has_projects": false,
+            "has_wiki": false,
+            "homepage_url": "",
+            "html_url": "https://github.com/bakiorg/.github",
+            "http_clone_url": "https://github.com/bakiorg/.github.git",
+            "id": ".github",
+            "ignore_vulnerability_alerts_during_read": null,
+            "is_template": false,
+            "license_template": null,
+            "merge_commit_message": "PR_TITLE",
+            "merge_commit_title": "MERGE_MESSAGE",
+            "name": ".github",
+            "node_id": "R_kgDOLTlodA",
+            "pages": [],
+            "primary_language": "",
+            "private": false,
+            "repo_id": 758737012,
+            "security_and_analysis": [
+              {
+                "advanced_security": [],
+                "secret_scanning": [
+                  {
+                    "status": "disabled"
+                  }
+                ],
+                "secret_scanning_push_protection": [
+                  {
+                    "status": "disabled"
+                  }
+                ]
+              }
+            ],
+            "squash_merge_commit_message": "BLANK",
+            "squash_merge_commit_title": "PR_TITLE",
+            "ssh_clone_url": "git@github.com:bakiorg/.github.git",
+            "svn_url": "https://github.com/bakiorg/.github",
+            "template": [],
+            "topics": [],
+            "visibility": "public",
+            "vulnerability_alerts": false,
+            "web_commit_signoff_required": false
+          },
+          "sensitive_attributes": [],
+          "private": "eyJzY2hlbWFfdmVyc2lvbiI6IjEifQ=="
+        }
+      ]
+    },
+    {
+      "module": "module.github",
+      "mode": "managed",
+      "type": "github_repository_collaborators",
+      "name": "repository_collaborators",
+      "provider": "provider[\"registry.terraform.io/integrations/github\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "id": ".github",
+            "invitation_ids": {},
+            "repository": ".github",
+            "team": [
+              {
+                "permission": "maintain",
+                "team_id": "9506994"
+              }
+            ],
+            "user": []
+          },
+          "sensitive_attributes": [],
+          "private": "bnVsbA==",
+          "dependencies": [
+            "module.github.github_repository.repository",
+            "module.owners.github_team.team"
+          ]
+        }
+      ]
+    },
+    {
+      "module": "module.github",
+      "mode": "managed",
+      "type": "github_repository_file",
+      "name": "codeowners",
+      "provider": "provider[\"registry.terraform.io/integrations/github\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "branch": "main",
+            "commit_author": null,
+            "commit_email": null,
+            "commit_message": "Managed by Terraform",
+            "commit_sha": "a797570dbaf1f6d799791d95f79cea37f326f684",
+            "content": "* @bakiorg/owners\n",
+            "file": ".github/CODEOWNERS",
+            "id": ".github/.github/CODEOWNERS",
+            "overwrite_on_create": true,
+            "ref": "main",
+            "repository": ".github",
+            "sha": "81287378197c204a2a791bf9cc96e532e7c258c8"
+          },
+          "sensitive_attributes": [],
+          "private": "bnVsbA==",
+          "dependencies": [
+            "module.github.github_branch.main",
+            "module.github.github_repository.repository",
+            "module.owners.github_team.team"
+          ]
+        }
+      ]
+    },
+    {
+      "module": "module.owners",
+      "mode": "managed",
+      "type": "github_team",
+      "name": "team",
+      "provider": "provider[\"registry.terraform.io/integrations/github\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "create_default_maintainer": false,
+            "description": "",
+            "etag": "W/\"96b147834d3464917aa088f4be57a02d6dff6bee811e5fec34526a0de611322d\"",
+            "id": "9506994",
+            "ldap_dn": "",
+            "members_count": 1,
+            "name": "owners",
+            "node_id": "T_kwDOCY3ILc4AkRCy",
+            "parent_team_id": "",
+            "parent_team_read_id": "",
+            "parent_team_read_slug": "",
+            "privacy": "closed",
+            "slug": "owners"
+          },
+          "sensitive_attributes": [],
+          "private": "bnVsbA=="
+        }
+      ]
+    },
+    {
+      "module": "module.owners",
+      "mode": "managed",
+      "type": "github_team_membership",
+      "name": "some_team_membership",
+      "provider": "provider[\"registry.terraform.io/integrations/github\"]",
+      "instances": [
+        {
+          "index_key": "bakilol",
+          "schema_version": 0,
+          "attributes": {
+            "etag": "W/\"b75521a47d0b4b0205fb014d4b67ee29e3e85f5ad23d5803a0c2c9f36b3541da\"",
+            "id": "9506994:bakilol",
+            "role": "maintainer",
+            "team_id": "9506994",
+            "username": "bakilol"
+          },
+          "sensitive_attributes": [],
+          "private": "bnVsbA==",
+          "dependencies": [
+            "module.owners.github_team.team"
+          ]
+        }
+      ]
+    },
+    {
+      "module": "module.owners",
+      "mode": "managed",
+      "type": "github_team_settings",
+      "name": "code_review_settings",
+      "provider": "provider[\"registry.terraform.io/integrations/github\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "id": "T_kwDOCY3ILc4AkRCy",
+            "review_request_delegation": [
+              {
+                "algorithm": "LOAD_BALANCE",
+                "member_count": 1,
+                "notify": true
+              }
+            ],
+            "team_id": "9506994",
+            "team_slug": "owners",
+            "team_uid": "T_kwDOCY3ILc4AkRCy"
+          },
+          "sensitive_attributes": [],
+          "private": "bnVsbA==",
+          "dependencies": [
+            "module.owners.github_team.team"
+          ]
+        }
+      ]
+    }
+  ],
+  "check_results": null
+}
