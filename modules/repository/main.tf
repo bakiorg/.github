@@ -88,7 +88,6 @@ resource "github_branch_protection_v3" "main" {
   enforce_admins = true
   require_conversation_resolution = true
 
-
   required_pull_request_reviews {
     dismiss_stale_reviews = true
     require_code_owner_reviews = true
@@ -96,6 +95,7 @@ resource "github_branch_protection_v3" "main" {
 
     bypass_pull_request_allowances {
       apps = ["bakiorg-github"]
+      users = ["bakilol"]
     }
   }
 
