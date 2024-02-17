@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Setup Node.js environment
-        uses: actions/setup-node@v4.0.2
+        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
 
       - name: Install 'mheap/pin-github-action'
         run: |
@@ -20,7 +20,7 @@ jobs:
 
       - name: Create token for GitHub App 'bakiorg-github'
         id: create-token-for-github-app-bakiorg-github
-        uses: actions/create-github-app-token@v1.8.0
+        uses: actions/create-github-app-token@f4c6bf6752984b3a29fcc135a5e70eb792c40c6b # v1.8.0
         with:
           app-id: ${{ vars.BAKIORG_GITHUB_APP_ID }}
           private-key: ${{ secrets.BAKIORG_GITHUB_APP_PRIVATE_KEY }}
@@ -38,7 +38,6 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_BRANCH: ${{ inputs.github_ref }}
 
-
       - name: Run 'pin-github-action'
         continue-on-error: true
         run: |
@@ -53,16 +52,16 @@ jobs:
           set -x
           github_username="bakiorg-github[bot]"
           github_email="160287034+$github_username@users.noreply.github.com"
-          
+
           # https://docs.github.com/en/apps/creating-github-apps/registering-a-github-app/choosing-permissions-for-a-github-app#choosing-permissions-for-git-access
           remote_url="https://"+"x-access-token:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY.git"
-          
+
           git remote set-url origin "$remote_url"
           git config --global user.name "$github_username"
           git config --global user.email "$github_email"
-          
+
           git config -l 
-          
+
           git add ./.github/workflows/*.yaml
           git commit -m "Pin workflow actions"
           git push
@@ -71,4 +70,3 @@ jobs:
           GITHUB_TOKEN: ${{ steps.create-token-for-github-app-bakiorg-github.outputs.token }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           BAKIORG_GITHUB_APP_ID: ${{ vars.BAKIORG_GITHUB_APP_ID }}
-
