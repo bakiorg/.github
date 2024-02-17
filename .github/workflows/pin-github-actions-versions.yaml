@@ -50,7 +50,7 @@ jobs:
           github_email="160287034+$github_username@users.noreply.github.com"
           
           # https://docs.github.com/en/apps/creating-github-apps/registering-a-github-app/choosing-permissions-for-a-github-app#choosing-permissions-for-git-access
-          remote_url="https://x-access-token:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY.git"
+          remote_url="https://"+"x-access-token:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY.git"
           
           git remote set-url origin "$remote_url"
           git config --global user.name "$github_username"
