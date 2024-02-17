@@ -37,7 +37,7 @@ jobs:
         run: |
           git config user.name = bakiorg-github
           git config user.email = github@baki.lol
-          git add ./github/workflows/*.yaml
+          git add ./.github/workflows/*.yaml
           git commit -m "Pin workflow actions"
           git push
 
