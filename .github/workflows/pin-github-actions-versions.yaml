@@ -40,11 +40,16 @@ jobs:
 
       - name: Commit changes from 'pin-github-actions'
         run: |
-          git config user.name = bakiorg-github
-          git config user.email = github@baki.lol
+          github_username="bakiorg-github"
+          github_email="$BAKIORG_GITHUB_APP_ID+$github_username[bot]@users.noreply.github.com"
+          
+          git remote set-url origin $(git config remote.origin.url | sed "s/github.com/$github_username:$GITHUB_TOKEN@github.com/g")
+          git config --global user.name "$github_email"
+          git config --global user.email "$github_email"
           git add ./.github/workflows/*.yaml
           git commit -m "Pin workflow actions"
           git push
 
         env:
           GITHUB_TOKEN: ${{ steps.create-token-for-github-app-bakiorg-github.outputs.token }}
+          BAKIORG_GITHUB_APP_ID: ${{ vars.BAKIORG_GITHUB_APP_ID }}
