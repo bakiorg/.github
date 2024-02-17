@@ -1,0 +1,44 @@
+on:
+  workflow_call:
+
+jobs:
+  pin-github-actions-versions:
+    name: Pin GitHub Actions versions
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4.0.2
+
+      - name: Install 'mheap/pin-github-action'
+        run: |
+          npm install -g pin-github-action
+
+      - name: Checkout
+        uses: actions/checkout@v4.1.1
+        with:
+          fetch-depth: 0
+
+      - name: Create token for GitHub App 'bakiorg-github'
+        id: create-token-for-github-app-bakiorg-github
+        uses: actions/create-github-app-token@v1.8.0
+        with:
+          app-id: ${{ env.BAKIORG_GITHUB_APP_ID }}
+          private-key: ${{ secrets.BAKIORG_GITHUB_APP_PRIVATE_KEY }}
+
+      - name: Run 'pin-github-action'
+        run: |
+          pin-github-action -c " {ref}" ./github/workflows/*.yaml
+
+        with:
+          GH_ADMIN_TOKEN: ${{ steps.create-token-for-github-app-bakiorg-github.outputs.token }}
+
+      - name: Commit changes from 'pin-github-actions'
+        run: |
+          git config user.name = bakiorg-github
+          git config user.email = github@baki.lol
+          git add ./github/workflows/*.yaml
+          git commit -m "Pin workflow actions"
+          git push
+
+        env:
+          GITHUB_TOKEN: ${{ steps.create-token-for-github-app-bakiorg-github.outputs.token }}
