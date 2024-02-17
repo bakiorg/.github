@@ -34,7 +34,7 @@ jobs:
         run: |
           pin-github-action -c " {ref}" ./github/workflows/*.yaml
 
-        with:
+        env:
           GH_ADMIN_TOKEN: ${{ steps.create-token-for-github-app-bakiorg-github.outputs.token }}
 
       - name: Commit changes from 'pin-github-actions'
