@@ -1,0 +1,11 @@
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  pull-request:
+    uses: ./.github/workflows/pin-github-actions-versions.yaml
+    secrets: inherit
+    with:
+      github_ref: ${{ github.event.pull_request.head.ref }}

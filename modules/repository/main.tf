@@ -7,10 +7,6 @@ variable "team_owner_name" {
   type = string
 }
 
-variable "team_owner_id" {
-  type = string
-}
-
 variable "is_archived" {
   type = bool
   default = false
@@ -64,7 +60,7 @@ resource "github_repository_collaborators" "repository_collaborators" {
 
   team {
     permission = "maintain"
-    team_id = var.team_owner_id
+    team_id = var.team_owner_name
   }
 }
 
