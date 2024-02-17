@@ -48,7 +48,9 @@ jobs:
           set -x
           github_username="bakiorg-github"
           github_email="$BAKIORG_GITHUB_APP_ID+$github_username[bot]@users.noreply.github.com"
-          remote_url="https://$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY.git"
+          
+          # https://docs.github.com/en/apps/creating-github-apps/registering-a-github-app/choosing-permissions-for-a-github-app#choosing-permissions-for-git-access
+          remote_url="https://x-access-token:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY.git"
           
           git remote set-url origin "$remote_url"
           git config --global user.name "$github_username"
