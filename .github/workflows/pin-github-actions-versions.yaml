@@ -26,6 +26,7 @@ jobs:
           private-key: ${{ secrets.BAKIORG_GITHUB_APP_PRIVATE_KEY }}
 
       - name: Run 'pin-github-action'
+        continue-on-error: true
         run: |
           pin-github-action -c " {ref}" ./.github/workflows/*.yaml
 
