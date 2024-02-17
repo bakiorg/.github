@@ -1,7 +1,8 @@
 .idea/
 .terraform/
 *.tfstate*
-!terraform.tfstate.gpg
-!terraform.tfstate.gpg.key.encrypted
 *.pem
 *.plaintext
+.terraform.lock.hcl
+!terraform.tfstate.gpg
+!terraform.tfstate.gpg.key.encrypted
