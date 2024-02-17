@@ -2,7 +2,6 @@ module "github" {
   source          = "./modules/repository"
   name            = ".github"
   team_owner_name = module.owners.team_name
-  team_owner_id   = module.owners.team_id
   actions_secrets_global = {
     bakiorg_github_app_private_key = {
       secret_name     = "BAKIORG_GITHUB_APP_PRIVATE_KEY"

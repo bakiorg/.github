@@ -22,8 +22,8 @@ jobs:
         id: create-token-for-github-app-bakiorg-github
         uses: actions/create-github-app-token@f4c6bf6752984b3a29fcc135a5e70eb792c40c6b # v1.8.0
         with:
-          app-id: ${{ vars.BAKIORG_GITHUB_APP_ID }}
-          private-key: ${{ secrets.BAKIORG_GITHUB_APP_PRIVATE_KEY }}
+          app-id: ${{ vars.BAKIORG_GITHUB_WORKFLOW_UPDATER_APP_ID }}
+          private-key: ${{ secrets.BAKIORG_GITHUB_WORKFLOW_UPDATER_APP_PRIVATE_KEY }}
 
       - name: Checkout
         run: |
@@ -50,21 +50,21 @@ jobs:
       - name: Commit changes from 'pin-github-actions'
         run: |
           set -x
-          
+
           if git diff --exit-code --quiet -- .github/workflows/; then
             echo "No changes in .github/workflows/"
             exit 0
           else
-            github_username="bakiorg-github[bot]"
-            github_email="160287034+$github_username@users.noreply.github.com"          
-            git config --global user.name "$github_username"
-            git config --global user.email "$github_email"          
+            username="$BAKIORG_GITHUB_WORKFLOW_UPDATER_APP_NAME"
+            app_bot_id="$BAKIORG_GITHUB_WORKFLOW_UPDATER_APP_BOT_ID"
+            email="$app_bot_id+$username@users.noreply.github.com"          
+            git config --global user.name "$username"
+            git config --global user.email "$email"          
             git add ./.github/workflows/*.yaml
-            git commit -m "Pin workflow actions"
+            git commit -m "Auto-update GitHub Actions"
             git push
           fi
 
         env:
-          GITHUB_TOKEN: ${{ steps.create-token-for-github-app-bakiorg-github.outputs.token }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-          BAKIORG_GITHUB_APP_ID: ${{ vars.BAKIORG_GITHUB_APP_ID }}
+          BAKIORG_GITHUB_WORKFLOW_UPDATER_APP_BOT_NAME: ${{ vars.BAKIORG_GITHUB_WORKFLOW_UPDATER_APP_BOT_NAME }}
+          BAKIORG_GITHUB_WORKFLOW_UPDATER_APP_BOT_ID: ${{ vars.BAKIORG_GITHUB_WORKFLOW_UPDATER_APP_BOT_ID }} 
