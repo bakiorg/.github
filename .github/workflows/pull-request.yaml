@@ -4,4 +4,5 @@ on:
       - main
 
 jobs:
-  uses: ./.github/workflows/pin-github-actions-versions.yaml
+  pull-request:
+    uses: ./.github/workflows/pin-github-actions-versions.yaml
