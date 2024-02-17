@@ -1,5 +1,9 @@
 on:
   workflow_call:
+    inputs:
+      github_ref:
+        type: string
+        required: true
 
 jobs:
   pin-github-actions-versions:
@@ -17,6 +21,7 @@ jobs:
         uses: actions/checkout@v4.1.1
         with:
           fetch-depth: 0
+          ref: ${{ inputs.github_ref }}
 
       - name: Create token for GitHub App 'bakiorg-github'
         id: create-token-for-github-app-bakiorg-github
