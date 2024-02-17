@@ -1,0 +1,7 @@
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  uses: ./.github/workflows/pin-github-actions-versions.yaml
