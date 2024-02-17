@@ -55,7 +55,7 @@ jobs:
             echo "No changes in .github/workflows/"
             exit 0
           else
-            username="$BAKIORG_GITHUB_WORKFLOW_UPDATER_APP_NAME"
+            username="$BAKIORG_GITHUB_WORKFLOW_UPDATER_APP_BOT_NAME"
             app_bot_id="$BAKIORG_GITHUB_WORKFLOW_UPDATER_APP_BOT_ID"
             email="$app_bot_id+$username@users.noreply.github.com"          
             git config --global user.name "$username"
