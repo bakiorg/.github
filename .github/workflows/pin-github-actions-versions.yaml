@@ -31,12 +31,12 @@ jobs:
                 
           # https://docs.github.com/en/apps/creating-github-apps/registering-a-github-app/choosing-permissions-for-a-github-app#choosing-permissions-for-git-access          
           git clone "https://x-access-token:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY.git" .
-          git checkout "$GITHUB_BRANCH"
+          git checkout "$GIT_REF"
 
         env:
           GITHUB_TOKEN: ${{ steps.create-token-for-github-app-bakiorg-github.outputs.token }}
           GITHUB_REPOSITORY: ${{ github.repository }}
-          GITHUB_BRANCH: ${{ inputs.github_ref }}
+          GIT_REF: ${{ inputs.github_ref }}
 
       - name: Run 'pin-github-action'
         continue-on-error: true
@@ -50,21 +50,19 @@ jobs:
       - name: Commit changes from 'pin-github-actions'
         run: |
           set -x
-          github_username="bakiorg-github[bot]"
-          github_email="160287034+$github_username@users.noreply.github.com"
-
-          # https://docs.github.com/en/apps/creating-github-apps/registering-a-github-app/choosing-permissions-for-a-github-app#choosing-permissions-for-git-access
-          remote_url="https://"+"x-access-token:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY.git"
-
-          git remote set-url origin "$remote_url"
-          git config --global user.name "$github_username"
-          git config --global user.email "$github_email"
-
-          git config -l 
-
-          git add ./.github/workflows/*.yaml
-          git commit -m "Pin workflow actions"
-          git push
+          
+          if git diff --exit-code --quiet -- .github/workflows/; then
+            echo "No changes in .github/workflows/"
+            exit 0
+          else
+            github_username="bakiorg-github[bot]"
+            github_email="160287034+$github_username@users.noreply.github.com"          
+            git config --global user.name "$github_username"
+            git config --global user.email "$github_email"          
+            git add ./.github/workflows/*.yaml
+            git commit -m "Pin workflow actions"
+            git push
+          fi
 
         env:
           GITHUB_TOKEN: ${{ steps.create-token-for-github-app-bakiorg-github.outputs.token }}
