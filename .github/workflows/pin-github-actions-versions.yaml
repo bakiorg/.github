@@ -45,8 +45,9 @@ jobs:
           set -x
           github_username="bakiorg-github"
           github_email="$BAKIORG_GITHUB_APP_ID+$github_username[bot]@users.noreply.github.com"
+          remote_url="https://$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY.git"
           
-          git remote set-url origin $(git config remote.origin.url | sed "s/github.com/$github_username:$GITHUB_TOKEN@github.com/g")
+          git remote set-url origin "$remote_url"
           git config --global user.name "$github_username"
           git config --global user.email "$github_email"
           git add ./.github/workflows/*.yaml
@@ -55,4 +56,6 @@ jobs:
 
         env:
           GITHUB_TOKEN: ${{ steps.create-token-for-github-app-bakiorg-github.outputs.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
           BAKIORG_GITHUB_APP_ID: ${{ vars.BAKIORG_GITHUB_APP_ID }}
+
