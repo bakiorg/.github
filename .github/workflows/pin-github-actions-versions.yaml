@@ -55,6 +55,9 @@ jobs:
           git remote set-url origin "$remote_url"
           git config --global user.name "$github_username"
           git config --global user.email "$github_email"
+          
+          git config -l
+          
           git add ./.github/workflows/*.yaml
           git commit -m "Pin workflow actions"
           git push
