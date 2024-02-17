@@ -30,7 +30,7 @@ jobs:
           set -x 
                 
           # https://docs.github.com/en/apps/creating-github-apps/registering-a-github-app/choosing-permissions-for-a-github-app#choosing-permissions-for-git-access          
-          git clone "https://x-access-token:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY.git"
+          git clone "https://x-access-token:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY.git" .
           git checkout "$GITHUB_BRANCH"
 
         env:
