@@ -22,7 +22,7 @@ jobs:
         id: create-token-for-github-app-bakiorg-github
         uses: actions/create-github-app-token@v1.8.0
         with:
-          app-id: ${{ env.BAKIORG_GITHUB_APP_ID }}
+          app-id: ${{ vars.BAKIORG_GITHUB_APP_ID }}
           private-key: ${{ secrets.BAKIORG_GITHUB_APP_PRIVATE_KEY }}
 
       - name: Run 'pin-github-action'
