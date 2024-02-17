@@ -31,12 +31,12 @@ jobs:
                 
           # https://docs.github.com/en/apps/creating-github-apps/registering-a-github-app/choosing-permissions-for-a-github-app#choosing-permissions-for-git-access          
           git clone "https://x-access-token:GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY.git"
-          git checkout "$GITHUB_REF"
+          git checkout "$GITHUB_BRANCH"
 
         env:
           GITHUB_TOKEN: ${{ steps.create-token-for-github-app-bakiorg-github.outputs.token }}
           GITHUB_REPOSITORY: ${{ github.repository }}
-          GITHUB_REF: ${{ inputs.github_ref }}
+          GITHUB_BRANCH: ${{ inputs.github_ref }}
 
 
       - name: Run 'pin-github-action'
