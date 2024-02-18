@@ -125,7 +125,7 @@ jobs:
 
       - name: Download Terraform Plan from original PR build artifacts
         if: inputs.goal == 'apply'
-        uses: actions/download-artifact@v4.1.2
+        uses: actions/download-artifact@eaceaf801fd36c7dee90939fad912460b18a1ffe # v4.1.2
         with:
           name: tfplan-${{ steps.get-short-commit-sha-for-source-pull-request.outputs.short-commit-sha }}
 
@@ -133,9 +133,9 @@ jobs:
         if: inputs.goal == 'apply'
         run: |
           set -x
-          
+
           apply=$(terraform apply -no-color "$PLAN_FILE_NAME")
-          
+
           echo "apply output: $apply"
         env:
           PLAN_FILE_NAME: tfplan-${{ steps.get-short-commit-sha-for-source-pull-request.outputs.short-commit-sha }}
@@ -152,16 +152,16 @@ jobs:
         if: inputs.goal == 'apply'
         run: |
           set -x 
-          
+
           cp terraform.tfstate.gpg state/
 
       - name: Update state
         if: inputs.goal == 'apply'
         run: |
           set -x 
-          
+
           cd state/
-          
+
           if git diff --exit-code --quiet -- terraform.tfstate.gpg; then
             echo "No changes in terraform.tfstate.gpg"
             exit 0
