@@ -12,7 +12,7 @@ jobs:
     with:
       github_ref: ${{ github.event.pull_request.head.ref }}
 
-  terraform:
+  terraform-plan:
     name: Terraform
     uses: ./.github/workflows/terraform.yaml
     secrets: inherit

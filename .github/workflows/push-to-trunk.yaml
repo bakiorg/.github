@@ -1,0 +1,12 @@
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  terraform-apply:
+    name: Terraform
+    uses: ./.github/workflows/terraform.yaml
+    secrets: inherit
+    with:
+      goal: apply
