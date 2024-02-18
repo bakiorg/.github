@@ -18,8 +18,8 @@ jobs:
           set -x 
           npm install -g pin-github-action
 
-      - name: Create token for GitHub App 'bakiorg-github'
-        id: create-token-for-github-app-bakiorg-github
+      - name: Create token for GitHub App 'bakiorg-github-workflow-updater'
+        id: create-token-for-github-app-bakiorg-github-workflow-updater
         uses: actions/create-github-app-token@f4c6bf6752984b3a29fcc135a5e70eb792c40c6b # v1.8.0
         with:
           app-id: ${{ vars.BAKIORG_GITHUB_WORKFLOW_UPDATER_APP_ID }}
@@ -34,7 +34,7 @@ jobs:
           git checkout "$GIT_REF"
 
         env:
-          GITHUB_TOKEN: ${{ steps.create-token-for-github-app-bakiorg-github.outputs.token }}
+          GITHUB_TOKEN: ${{ steps.create-token-for-github-app-bakiorg-github-workflow-updater.outputs.token }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           GIT_REF: ${{ inputs.github_ref }}
 
@@ -45,7 +45,7 @@ jobs:
           pin-github-action -c " {ref}" ./.github/workflows/*.yaml
 
         env:
-          GH_ADMIN_TOKEN: ${{ steps.create-token-for-github-app-bakiorg-github.outputs.token }}
+          GH_ADMIN_TOKEN: ${{ steps.create-token-for-github-app-bakiorg-github-workflow-updater.outputs.token }}
 
       - name: Commit changes from 'pin-github-actions'
         run: |
