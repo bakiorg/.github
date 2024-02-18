@@ -12,11 +12,15 @@ jobs:
         id: check-whether-all-ci-workflows-have-passed
         continue-on-error: true
         run: |
+          set -x
+          
           gh pr checks 1> /dev/null
 
       - name: Dismiss approvals if CI workflows have not passed
         if: steps.check-whether-all-ci-workflows-have-passed.outcome == 'failure'
         run: |
+          set -x
+          
           gh api "repos/$GITHUB_PULL_REQUEST_URL/reviews" \
             --jq '.[] | select(.state == "APPROVED") | .id' \
             | xargs -I '{}' gh api --method=PUT -f message="Dismissed due to PR edit." \
