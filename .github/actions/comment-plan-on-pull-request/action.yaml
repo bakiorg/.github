@@ -29,7 +29,7 @@ runs:
         echo"plan=$(cat tfplan_short)" >> "$GITHUB_OUTPUT"
 
       env:
-        TERRAFORM_PLAN_FILE: ${{ inputs.terraform-plan-file }}
+        TERRAFORM_PLAN_FILE: ${{ inputs.terraform-plan-file-name }}
 
     - name: Add pull request comment with plan
       uses: mshick/add-pr-comment@v2.8.2
