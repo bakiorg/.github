@@ -25,12 +25,8 @@ runs:
         # Mark destructions 
         sed -i 's/\(^\s*\)-/-&/' tfplan_short
         
-        echo "The Terraform configuration changes resulted with the following [plan]($TERRAFORM_PLAN_ARTIFACT_LINK):
-        
-        ```diff
-        $(cat tfplan_short)
-        ```
-        " >> message.md
+        echo "The Terraform configuration changes resulted with the following [plan]($TERRAFORM_PLAN_ARTIFACT_LINK):\n\`\`\`diff
+        $(cat tfplan_short)\n\`\`\`" >> message.md
 
       env:
         TERRAFORM_PLAN_FILE_NAME: ${{ inputs.terraform-plan-file-name }}
