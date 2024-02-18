@@ -98,7 +98,7 @@ jobs:
           terraform-plan-artifact-link: ${{ steps.upload-terraform-plan-as-build-artifact.outputs.artifact-url }}
 
       - name: Get short commit SHA for source pull request
-        if: inputs.goal == 'apply'
+        #if: inputs.goal == 'apply'
         id: get-short-commit-sha-for-source-pull-request
         run: |
           set -x 
@@ -124,13 +124,13 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download Terraform Plan from original PR build artifacts
-        if: inputs.goal == 'apply'
+        #if: inputs.goal == 'apply'
         uses: actions/download-artifact@eaceaf801fd36c7dee90939fad912460b18a1ffe # v4.1.2
         with:
           name: tfplan-${{ steps.get-short-commit-sha-for-source-pull-request.outputs.short-commit-sha }}
 
       - name: Apply Terraform
-        if: inputs.goal == 'apply'
+        #if: inputs.goal == 'apply'
         run: |
           set -x
 
@@ -141,6 +141,7 @@ jobs:
           PLAN_FILE_NAME: tfplan-${{ steps.get-short-commit-sha-for-source-pull-request.outputs.short-commit-sha }}
 
       - name: Encrypt Terraform state
+        #if: inputs.goal == 'apply'
         run: |
           gpg --quiet --yes --batch --passphrase="$ENCRYPT_KEY" --cipher-algo BLOWFISH \
           --output terraform.tfstate.gpg --symmetric terraform.tfstate
@@ -149,14 +150,14 @@ jobs:
           ENCRYPT_KEY: ${{ secrets.BAKIORG_TERRAFORM_TFSTATE_GPG_KEY }}
 
       - name: Copy new state to 'state' working directory
-        if: inputs.goal == 'apply'
+        #if: inputs.goal == 'apply'
         run: |
           set -x 
 
           cp terraform.tfstate.gpg state/
 
       - name: Update state
-        if: inputs.goal == 'apply'
+        #if: inputs.goal == 'apply'
         run: |
           set -x 
 
