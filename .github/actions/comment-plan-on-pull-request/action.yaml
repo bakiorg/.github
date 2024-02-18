@@ -68,7 +68,7 @@ runs:
       uses: mshick/add-pr-comment@b8f338c590a895d50bcbfa6c5859251edc8952fc # v2.8.2
       with:
         message-path: message.md
-        message-id: terraform-plan
+        # message-id: terraform-plan
         message-failure: |-
           We had some issues formatting the plan for you, 
           but you can still see it using this [link](${{ inputs.terraform-plan-artifact-link }})
