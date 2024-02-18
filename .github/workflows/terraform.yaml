@@ -152,7 +152,7 @@ jobs:
         env:
           NAME: tfplan-${{ steps.get-short-commit-sha-for-source-pull-request.outputs.short-commit-sha }}
           RUN_ID: ${{ steps.get-short-commit-sha-for-source-pull-request.outputs.run-number }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Apply Terraform
         if: inputs.goal == 'apply'
