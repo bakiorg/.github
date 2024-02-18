@@ -8,16 +8,19 @@ jobs:
     if: github.event.review.state == 'APPROVED'
     runs-on: ubuntu-latest
     steps:
-      - name: Check whether all CI workflows have passed
+      - name: Check whether if the 'Terraform / Plan' workflow has passed
         id: check-whether-all-ci-workflows-have-passed
         continue-on-error: true
         run: |
-          set -x
+          outcome=$(gh api "https://api.github.com/repos/$GITHUB_REPOSITORY/commits/$GIT_COMMIT_SHA/check-runs" \
+            | jq '.check_runs[] | select(.name == "Terraform / Plan") | .conclusion')
           
-          gh pr checks 1> /dev/null
+          [[ "$outcome" = "\"success\"" ]]
 
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GIT_COMMIT_SHA: ${{ github.event.review.commit_id }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
 
       - name: Dismiss approvals if CI workflows have not passed
         if: steps.check-whether-all-ci-workflows-have-passed.outcome == 'failure'
