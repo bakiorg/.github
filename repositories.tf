@@ -5,7 +5,7 @@ module "github" {
   actions_secrets_global = {
     bakiorg_github_app_private_key = {
       secret_name     = "BAKIORG_GITHUB_APP_PRIVATE_KEY"
-      encrypted_value = file(local.bakiorg_github_app_private_key_path)
+      encrypted_value  = file(local.bakiorg_github_app_private_key_path)
     }
 
     bakiorg_terraform_tfstate_gpg_key = {
