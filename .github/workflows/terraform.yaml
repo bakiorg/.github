@@ -97,8 +97,9 @@ jobs:
           terraform-plan-file-name: ${{ steps.terraform-plan.outputs.terraform-plan-file-name }}
           terraform-plan-artifact-link: ${{ steps.upload-terraform-plan-as-build-artifact.outputs.artifact-url }}
 
-      - name: Get short SHA for head of source pull request
+      - name: Get short commit SHA for source pull request
         #        if: inputs.goal == 'apply'
+        id: get-short-commit-sha-for-source-pull-request
         run: |
           set -x 
 
@@ -121,3 +122,18 @@ jobs:
 
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Download Terraform Plan from original PR build artifacts
+        #        if: inputs.goal == 'apply'
+        uses: actions/download-artifact@v4.1.2
+        with:
+          name: tfplan-${{ steps.get-short-commit-sha-for-source-pull-request.outputs.short-commit-sha }}
+
+      - name: Apply Teraform
+        #        if: inputs.goal == 'apply'
+        run: |
+          apply=$(terraform apply -no-color "PLAN_FILE_NAME")
+          
+          echo "apply output: $apply"
+        env:
+          PLAN_FILE_NAME: tfplan-${{ steps.get-short-commit-sha-for-source-pull-request.outputs.short-commit-sha }}
