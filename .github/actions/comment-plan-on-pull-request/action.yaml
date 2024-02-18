@@ -16,7 +16,7 @@ runs:
       run: |
         set -x
         
-        terraform show -no-color "$TERRAFORM_PLAN_FILE" | awk '/Terraform will perform the following actions:/{flag=1; next} flag' >> tfplan_short
+        terraform show -no-color "$TERRAFORM_PLAN_FILE_NAME" | awk '/Terraform will perform the following actions:/{flag=1; next} flag' >> tfplan_short
         
         # Mark additions 
         sed -i 's/\(^\s*\)+/+&/' tfplan_short
@@ -26,16 +26,20 @@ runs:
         sed -i 's/\(^\s*\)-/-&/' tfplan_short
 
         echo "plan=$(cat tfplan_short)" >> "$GITHUB_OUTPUT"
+        
+        echo "The Terraform configuration changes resulted with the following [plan]($TERRAFORM_PLAN_ARTIFACT_LINK):
+        
+        ```diff
+        $(cat tfplan_short)"
+        ```
+        " >> message.md
 
       env:
-        TERRAFORM_PLAN_FILE: ${{ inputs.terraform-plan-file-name }}
+        TERRAFORM_PLAN_FILE_NAME: ${{ inputs.terraform-plan-file-name }}
+        TERRAFORM_PLAN_ARTIFACT_LINK: ${{ inputs.terraform-plan-artifact-link }}
 
     - name: Add pull request comment with plan
       uses: mshick/add-pr-comment@v2.8.2
       with:
-        message: |
-          The Terraform configuration changes resulted with the following [plan](${{ inputs.terraform-plan-artifact-link }}):
-          
-          ```diff
-          ${{ steps.trim-terraform-plan.outputs.plan }}
-          ````
+        message-path: message.md
+
