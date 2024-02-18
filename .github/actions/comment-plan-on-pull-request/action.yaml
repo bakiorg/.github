@@ -18,8 +18,10 @@ runs:
 
         if terraform show -no-color "$TERRAFORM_PLAN_FILE_NAME" | grep "No changes. Your infrastructure matches the configuration."; then
           echo "No plan to format"
+          echo "formatted-plan-exists=false" >> "$GITHUB_OUTPUT"
           exit 0
         fi
+        echo "formatted-plan-exists=true" >> "$GITHUB_OUTPUT"
 
         terraform show -no-color "$TERRAFORM_PLAN_FILE_NAME" | awk '/Terraform will perform the following actions:/{flag=1; next} flag' >> tfplan_short
 
@@ -62,6 +64,7 @@ runs:
         TERRAFORM_PLAN_ARTIFACT_LINK: ${{ inputs.terraform-plan-artifact-link }}
 
     - name: Add pull request comment with Terraform plan
+      if: steps.trim-terraform-plan.formatted-plan-exists == 'true'
       uses: mshick/add-pr-comment@b8f338c590a895d50bcbfa6c5859251edc8952fc # v2.8.2
       with:
         message-path: message.md
