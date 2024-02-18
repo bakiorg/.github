@@ -98,11 +98,11 @@ jobs:
           terraform-plan-artifact-link: ${{ steps.upload-terraform-plan-as-build-artifact.outputs.artifact-url }}
 
       - name: Get SHA for head of source pull request
-#        if: inputs.goal == 'apply'
+        #        if: inputs.goal == 'apply'
         run: |
           last_commit_message=$(git log --format=%B -n 1 HEAD)
           regex=".*#([0-9]+)\)"
-          
+
           if [[ $last_commit_message =~ $regex ]]; then
             number="${BASH_REMATCH[1]}"
             echo "pull_request_number: $number"
