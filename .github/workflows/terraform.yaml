@@ -1,11 +1,49 @@
 on:
   workflow_call:
-    inputs:
-
 
 concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
 
+env:
+  TF_VAR_GITHUB_APP_ID: ${{ vars.BAKIORG_GITHUB_APP_ID }}
+  TF_VAR_GITHUB_APP_INSTALLATION_ID: ${{ vars.BAKIORG_GITHUB_APP_INSTALLATION_ID }}
 
 jobs:
   run-terraform:
+    name: Plan Terraform
     runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3.0.0
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Put GitHub app private key in .pem file and configure environment variable
+        run: |
+          set -x
+          
+          file_name="github-app-private-key.pem"
+          
+          echo "$GITHUB_APP_PRIVATE_KEY" > "$file_name"
+          echo "TF_VAR_GITHUB_APP_PEM_FILE=$file_name" >> "$GITHUB_ENV"
+
+        env:
+          GITHUB_APP_PRIVATE_KEY: ${{ secrets.BAKIORG_GITHUB_APP_PRIVATE_KEY }}
+
+      - name: Decrypt Terraform state
+        run: |
+          gpg --quiet --batch --yes --decrypt --passphrase="$DECRYPT_KEY" \
+          --output terraform.tfstate terraform.tfstate.gpg
+
+        env:
+          DECRYPT_KEY: ${{ secrets.BAKIORG_TERRAFORM_TFSTATE_GPG_KEY }}
+
+      - name: Terraform Plan
+        run: terraform plan -out=tfplan

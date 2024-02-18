@@ -7,12 +7,24 @@ terraform {
   }
 }
 
+variable "GITHUB_APP_ID" {
+  type = string
+}
+
+variable "GITHUB_APP_INSTALLATION_ID" {
+  type = string
+}
+
+variable "GITHUB_APP_PEM_FILE" {
+  type = string
+}
+
 provider "github" {
   owner = "bakiorg"
   app_auth {
-    id              = "830820"
-    installation_id = "47400743"
-    pem_file        = file("/home/baki/.github/bakiorg-github.2024-02-16.private-key.pem")
+    id              = var.GITHUB_APP_ID
+    installation_id = var.GITHUB_APP_INSTALLATION_ID
+    pem_file        = file(var.GITHUB_APP_PEM_FILE)
   }
 }
 

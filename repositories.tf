@@ -18,5 +18,10 @@ module "github" {
       variable_key   = "BAKIORG_GITHUB_APP_ID"
       variable_value = data.github_app.bakiorg_github.id
     }
+
+    bakiorg_github_app_installation_id = {
+      variable_key   = "BAKIORG_GITHUB_APP_INSTALLATION_ID"
+      variable_value = local.bakiorg_github_app_installation_id
+    }
   }
 }
