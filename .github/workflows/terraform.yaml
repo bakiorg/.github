@@ -140,7 +140,7 @@ jobs:
         if: inputs.goal == 'apply'
         uses: actions/download-artifact@eaceaf801fd36c7dee90939fad912460b18a1ffe # v4.1.2
         with:
-          name: tfplan-${{ steps.get-short-commit-sha-for-source-pull-request.outputs.short-commit-sha }}
+          #name: tfplan-${{ steps.get-short-commit-sha-for-source-pull-request.outputs.short-commit-sha }}
           run-id: ${{ steps.get-short-commit-sha-for-source-pull-request.outputs.run-number }}
 
       - name: Apply Terraform
