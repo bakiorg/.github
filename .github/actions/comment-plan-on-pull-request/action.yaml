@@ -16,6 +16,11 @@ runs:
       run: |
         set -x
 
+        if terraform show -no-color "$TERRAFORM_PLAN_FILE_NAME" | grep "No changes. Your infrastructure matches the configuration."; then
+          echo "No plan to format"
+          exit 0
+        fi
+
         terraform show -no-color "$TERRAFORM_PLAN_FILE_NAME" | awk '/Terraform will perform the following actions:/{flag=1; next} flag' >> tfplan_short
 
         numbers=$(cat tfplan_short | grep -oP 'Plan: (\d+ to add, \d+ to change, \d+ to destroy.)' | awk '{print $2, $5, $8}')
