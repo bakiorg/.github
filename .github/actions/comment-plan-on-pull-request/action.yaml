@@ -16,8 +16,7 @@ runs:
       run: |
         set -x
         
-        terraform show -no-color "$TERRAFORM_PLAN_FILE" \ 
-        | awk '/Terraform will perform the following actions:/{flag=1; next} flag' >> tfplan_short
+        terraform show -no-color "$TERRAFORM_PLAN_FILE" | awk '/Terraform will perform the following actions:/{flag=1; next} flag' >> tfplan_short
         
         # Mark additions 
         sed -i 's/\(^\s*\)+/+&/' tfplan_short
