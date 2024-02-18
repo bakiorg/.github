@@ -28,10 +28,13 @@ jobs:
         uses: hashicorp/setup-terraform@v3.0.0
 
       - name: Format Terraform
-        run: terraform fmt -recursive
+        run: terraform fmt -check -recursive
 
       - name: Initialize Terraform
         run: terraform init
+
+      - name: Validate Terraform
+        run: terraform validate
 
       - name: Put GitHub app private key in .pem file and configure environment variable
         run: |
