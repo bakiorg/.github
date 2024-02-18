@@ -31,6 +31,12 @@ variable "actions_variables_global" {
   description = "A map of environment variable keys to values. Default: empty"
 }
 
+variable "required_status_checks" {
+  type        = set(string)
+  default     = []
+  description = "A set of all required status checks"
+}
+
 resource "github_repository" "repository" {
   allow_auto_merge            = false
   allow_merge_commit          = false
@@ -78,21 +84,27 @@ resource "github_branch_default" "main" {
   depends_on = [github_branch.main]
 }
 
-resource "github_branch_protection_v3" "main" {
-  repository                      = github_repository.repository.name
-  branch                          = github_branch.main.branch
+resource "github_branch_protection" "main" {
+  repository_id                   = github_repository.repository.name
+  pattern                         = github_branch.main.branch
   enforce_admins                  = true
   require_conversation_resolution = true
+  required_linear_history         = true
+
+  required_status_checks {
+    contexts = var.required_status_checks
+    strict   = true
+  }
 
   required_pull_request_reviews {
     dismiss_stale_reviews           = true
     require_code_owner_reviews      = true
+    require_last_push_approval      = true
     required_approving_review_count = 1
 
-    bypass_pull_request_allowances {
-      apps  = ["bakiorg-github"]
-      users = ["bakilol"]
-    }
+    pull_request_bypassers = [
+      "/bakilol"
+    ]
   }
 
   depends_on = [github_branch.main]

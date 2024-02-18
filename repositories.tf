@@ -5,7 +5,7 @@ module "github" {
   actions_secrets_global = {
     bakiorg_github_app_private_key = {
       secret_name     = "BAKIORG_GITHUB_APP_PRIVATE_KEY"
-      encrypted_value  = file(local.bakiorg_github_app_private_key_path)
+      encrypted_value = file(local.bakiorg_github_app_private_key_path)
     }
 
     bakiorg_terraform_tfstate_gpg_key = {
@@ -24,4 +24,10 @@ module "github" {
       variable_value = local.bakiorg_github_app_installation_id
     }
   }
+
+  required_status_checks = [
+    "GitHub Actions supply chain security / Pin GitHub Actions versions",
+    "Terraform / Plan",
+    "Validate approving reviews"
+  ]
 }
