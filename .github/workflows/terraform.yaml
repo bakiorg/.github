@@ -132,7 +132,7 @@ jobs:
       - name: Apply Teraform
         #        if: inputs.goal == 'apply'
         run: |
-          apply=$(terraform apply -no-color "PLAN_FILE_NAME")
+          apply=$(terraform apply -no-color "$PLAN_FILE_NAME")
           
           echo "apply output: $apply"
         env:
