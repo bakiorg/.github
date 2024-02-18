@@ -8,19 +8,19 @@ jobs:
     if: github.event.review.state == 'APPROVED'
     runs-on: ubuntu-latest
     steps:
-#      - name: Authenticate GitHub CLI
-#        run: |
-#          echo "$GITHUB_TOKEN" | gh auth login --with-token
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Check whether all CI workflows have passed
         id: check-whether-all-ci-workflows-have-passed
         continue-on-error: true
         run: |
           gh pr checks 1> /dev/null
 
-      - name: Dismiss apprrovals if CI workflows have not passed
+      - name: Dismiss approvals if CI workflows have not passed
         if: steps.check-whether-all-ci-workflows-have-passed.outcome == 'failure'
         run: |
-          gh api repos/${{ github.event.repo.name }}/pulls/${{ github.event.number }}/reviews --jq '.[] | [.id,.state] | join("=")' | grep -Po '\d+(?=\=APPROVED)' | xargs -I '@(review_id)' gh api repos/${{ github.event.repo.name }}/pulls/${{ github.event.number }}/reviews/@(review_id)/dismissals
+          gh api "repos/$GITHUB_PULL_REQUEST_URL/reviews" \
+            --jq '.[] | select(.state == "APPROVED") | .id' \
+            | xargs -I '{}' gh api --method=PUT -f message="Dismissed due to PR edit." \
+            repos/$GITHUB_PULL_REQUEST_URL/reviews/'{}'/dismissals
+
+        env:
+          GITHUB_PULL_REQUEST_URL: ${{ github.event.review.pull_request_url }}
