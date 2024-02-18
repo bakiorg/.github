@@ -28,10 +28,15 @@ runs:
         plan=$(cat tfplan_short)
         
         cat > message.md << EOF
-        The Terraform configuration changes resulted with the following [plan]($TERRAFORM_PLAN_ARTIFACT_LINK):
+        The Terraform configuration changes resulted with the following [plan]($TERRAFORM_PLAN_ARTIFACT_LINK).
+        <details>
+          <summary>Detailed plan output</summary>
+        
         \`\`\`diff
         $plan
         \`\`\`
+        
+        </details>
         EOF
 
       env:
