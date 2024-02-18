@@ -32,7 +32,7 @@ jobs:
           path: state/
 
       - name: Copy state to workdir
-        run: cp -r state/ .
+        run: cp -r /state/ ./
 
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@a1502cd9e758c50496cc9ac5308c4843bcd56d36 # v3.0.0
