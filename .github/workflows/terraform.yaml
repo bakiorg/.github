@@ -102,7 +102,7 @@ jobs:
         run: |
           set -x 
 
-          last_commit_message=$(git log --format=%B -n 1 HEAD)
+          last_commit_message=$(git log --format=%B -n 1 HEAD^2)
           regex=".*#([0-9]+)\)"
 
           if [[ $last_commit_message =~ $regex ]]; then
