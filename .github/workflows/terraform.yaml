@@ -165,17 +165,6 @@ jobs:
         env:
           PLAN_FILE_NAME: tfplan-${{ steps.get-short-commit-sha-for-source-pull-request.outputs.short-commit-sha }}
 
-      - name: Apply Terraform
-        if: inputs.goal == 'apply'
-        run: |
-          set -x
-
-          apply=$(terraform apply -no-color "$PLAN_FILE_NAME")
-
-          echo "apply output: $apply"
-        env:
-          PLAN_FILE_NAME: tfplan-${{ steps.get-short-commit-sha-for-source-pull-request.outputs.short-commit-sha }}
-
       - name: Encrypt Terraform state
         if: inputs.goal == 'apply'
         run: |
