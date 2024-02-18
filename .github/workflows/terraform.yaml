@@ -97,15 +97,27 @@ jobs:
           terraform-plan-file-name: ${{ steps.terraform-plan.outputs.terraform-plan-file-name }}
           terraform-plan-artifact-link: ${{ steps.upload-terraform-plan-as-build-artifact.outputs.artifact-url }}
 
-      - name: Get SHA for head of source pull request
+      - name: Get short SHA for head of source pull request
         #        if: inputs.goal == 'apply'
         run: |
           set -x 
 
-          last_commit_message=$(git log --format=%B -n 1 HEAD^2)
+          last_commit_message=$(git log --format=%B -n 1 HEAD^2) #TODO, remove
           regex=".*#([0-9]+)\)"
 
+          pull_request_number=0
           if [[ $last_commit_message =~ $regex ]]; then
-            number="${BASH_REMATCH[1]}"
+            pull_request_number="${BASH_REMATCH[1]}"
             echo "pull_request_number: $number"
+          else
+            echo "Could not find pull request number" 
+            exit 1
           fi
+
+          gh pr checkout $pull_request_number
+          commit_sha=$(git rev-parse --short HEAD)
+          
+          echo "short-commit-sha=$commit_sha" >> "$GITHUB_OUTPUT"
+
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
