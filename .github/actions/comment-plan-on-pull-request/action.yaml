@@ -18,6 +18,11 @@ runs:
         
         terraform show -no-color "$TERRAFORM_PLAN_FILE_NAME" | awk '/Terraform will perform the following actions:/{flag=1; next} flag' >> tfplan_short
         
+        numbers=$(cat tfplan_short | grep -oP 'Plan: (\d+ to add, \d+ to change, \d+ to destroy.)' | awk '{print $2, $5, $8}')
+        add=$(echo "$numbers" | cut -d " " -f 1)
+        change=$(echo "$numbers" | cut -d " " -f 2)
+        destroy=$(echo "$numbers" | cut -d " " -f 3)
+        
         # Mark additions 
         sed -i 's/\(^\s*\)+/+&/' tfplan_short
         # Mark changes 
@@ -28,7 +33,13 @@ runs:
         plan=$(cat tfplan_short)
         
         cat > message.md << EOF
-        The Terraform configuration changes resulted with the following [plan]($TERRAFORM_PLAN_ARTIFACT_LINK).
+        The Terraform configuration changes resulted with the following [plan]($TERRAFORM_PLAN_ARTIFACT_LINK):
+        
+        ### Plan summary:
+        - \`$add\` to add :white-check-mark:
+        - \`$change\` to change :twisted-rightwards-arrows:
+        - \`$destroy\` to destroy :boom:
+        
         <details>
           <summary>Detailed plan output:</summary>
         
@@ -38,6 +49,7 @@ runs:
         
         </details>
         EOF
+
 
       env:
         TERRAFORM_PLAN_FILE_NAME: ${{ inputs.terraform-plan-file-name }}
