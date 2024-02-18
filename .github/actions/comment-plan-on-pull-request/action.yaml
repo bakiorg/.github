@@ -35,7 +35,7 @@ runs:
         cat > message.md << EOF
         The Terraform configuration changes resulted with the following [plan]($TERRAFORM_PLAN_ARTIFACT_LINK).
         
-        ### Plan summary
+        ### Plan summary  
         - \`$add\` to add ✅
         - \`$change\` to change 🔀
         - \`$destroy\` to destroy 💥
@@ -55,10 +55,12 @@ runs:
         TERRAFORM_PLAN_FILE_NAME: ${{ inputs.terraform-plan-file-name }}
         TERRAFORM_PLAN_ARTIFACT_LINK: ${{ inputs.terraform-plan-artifact-link }}
 
-    - name: Add pull request comment with plan
+    - name: Add pull request comment with Terraform plan
       uses: mshick/add-pr-comment@v2.8.2
       with:
         message-path: message.md
+        message-id: terraform-plan
         message-failure: |-  
           We had some issues formatting the plan for you, 
           but you can still see it using this [link](${{ inputs.terraform-plan-artifact-link }})
+        
