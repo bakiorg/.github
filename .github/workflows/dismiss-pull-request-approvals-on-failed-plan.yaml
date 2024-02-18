@@ -21,10 +21,10 @@ jobs:
         run: |
           set -x
           
-          gh api "repos/$GITHUB_PULL_REQUEST_URL/reviews" \
+          gh api "$GITHUB_PULL_REQUEST_URL/reviews" \
             --jq '.[] | select(.state == "APPROVED") | .id' \
             | xargs -I '{}' gh api --method=PUT -f message="Dismissed due to PR edit." \
-            repos/$GITHUB_PULL_REQUEST_URL/reviews/'{}'/dismissals
+            /GITHUB_PULL_REQUEST_URL/reviews/'{}'/dismissals
 
         env:
           GITHUB_PULL_REQUEST_URL: ${{ github.event.review.pull_request_url }}
