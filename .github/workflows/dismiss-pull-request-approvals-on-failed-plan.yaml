@@ -1,10 +1,12 @@
+name: Pull request review
 on:
   pull_request_review:
     types:
       - submitted
 
 jobs:
-  approved:
+  dismiss-pull-request-approvals-on-failed-plan:
+    name: Validate approving reviews
     if: github.event.review.state == 'APPROVED'
     runs-on: ubuntu-latest
     steps:
@@ -33,6 +35,9 @@ jobs:
             --jq '.[] | select(.state == "APPROVED") | .id' \
             | xargs -I '{}' gh api --method=PUT -f message="Dismissed because of failing CI checks." \
             $GITHUB_PULL_REQUEST_URL/reviews/'{}'/dismissals
+          
+          echo "The received approval(s) are invalid. They have been dismissed"
+          exit 1
 
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
