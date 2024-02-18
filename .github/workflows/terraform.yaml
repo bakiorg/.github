@@ -61,7 +61,7 @@ jobs:
       - name: Decrypt Terraform state
         run: |
           echo "$DECRYPT_KEY" | sed 's/-/_/g'
-          
+
           gpg --quiet --batch --yes --decrypt --passphrase="$DECRYPT_KEY" \
           --output terraform.tfstate terraform.tfstate.gpg
 
