@@ -12,6 +12,8 @@ jobs:
         id: check-whether-all-ci-workflows-have-passed
         continue-on-error: true
         run: |
+          set -x 
+          
           outcome=$(gh api "https://api.github.com/repos/$GITHUB_REPOSITORY/commits/$GIT_COMMIT_SHA/check-runs" \
             | jq '.check_runs[] | select(.name == "Terraform / Plan") | .conclusion')
           
