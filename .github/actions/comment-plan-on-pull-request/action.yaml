@@ -22,11 +22,14 @@ runs:
         sed -i 's/\(^\s*\)+/+&/' tfplan_short
         # Mark changes 
         sed -i 's/\(^\s*\)~/!&/' tfplan_short
-        # Mark destructions 
+        # Mark destructions   
         sed -i 's/\(^\s*\)-/-&/' tfplan_short
         
-        message="The Terraform configuration changes resulted with the following [plan]($TERRAFORM_PLAN_ARTIFACT_LINK):\n\`\`\`diff
-        $(cat tfplan_short)\n\`\`\`"
+        message="The Terraform configuration changes resulted with the following [plan]($TERRAFORM_PLAN_ARTIFACT_LINK):
+        "+
+        "\`\`\`diff
+        "+
+        "$(cat tfplan_short)"\`\`\`"
         
         echo "$message" > message.md
 
