@@ -59,7 +59,7 @@ jobs:
         run: |
           file_name="tfplan-$SHORT_COMMIT_SHA"
           
-          terraform plan -out=tfplan-"$file_name"
+          terraform plan -out="$file_name"
           
           echo "terraform-plan-file-name=$file_name" >> "$GITHUB_OUTPUT"
 
