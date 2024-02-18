@@ -36,9 +36,9 @@ runs:
         The Terraform configuration changes resulted with the following [plan]($TERRAFORM_PLAN_ARTIFACT_LINK):
         
         ### Plan summary:
-        - \`$add\` to add :white-check-mark:
-        - \`$change\` to change :twisted-rightwards-arrows:
-        - \`$destroy\` to destroy :boom:
+        - \`$add\` to add ✅
+        - \`$change\` to change 🔀
+        - \`$destroy\` to destroy 💥
         
         <details>
           <summary>Detailed plan output:</summary>
