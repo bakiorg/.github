@@ -98,12 +98,12 @@ jobs:
           terraform-plan-artifact-link: ${{ steps.upload-terraform-plan-as-build-artifact.outputs.artifact-url }}
 
       - name: Get short commit SHA for source pull request
-        #        if: inputs.goal == 'apply'
+        if: inputs.goal == 'apply'
         id: get-short-commit-sha-for-source-pull-request
         run: |
           set -x 
 
-          last_commit_message=$(git log --format=%B -n 1 HEAD^2) #TODO, remove
+          last_commit_message=$(git log --format=%B -n 1 HEAD)
           regex=".*#([0-9]+)\)"
 
           pull_request_number=0
@@ -124,16 +124,51 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download Terraform Plan from original PR build artifacts
-        #        if: inputs.goal == 'apply'
+        if: inputs.goal == 'apply'
         uses: actions/download-artifact@v4.1.2
         with:
           name: tfplan-${{ steps.get-short-commit-sha-for-source-pull-request.outputs.short-commit-sha }}
 
-      - name: Apply Teraform
-        #        if: inputs.goal == 'apply'
+      - name: Apply Terraform
+        if: inputs.goal == 'apply'
         run: |
+          set -x
+          
           apply=$(terraform apply -no-color "$PLAN_FILE_NAME")
           
           echo "apply output: $apply"
         env:
           PLAN_FILE_NAME: tfplan-${{ steps.get-short-commit-sha-for-source-pull-request.outputs.short-commit-sha }}
+
+      - name: Encrypt Terraform state
+        run: |
+          gpg --quiet --yes --batch --passphrase="$ENCRYPT_KEY" --cipher-algo BLOWFISH \
+          --output terraform.tfstate.gpg --symmetric terraform.tfstate
+
+        env:
+          ENCRYPT_KEY: ${{ secrets.BAKIORG_TERRAFORM_TFSTATE_GPG_KEY }}
+
+      - name: Copy new state to 'state' working directory
+        if: inputs.goal == 'apply'
+        run: |
+          set -x 
+          
+          cp terraform.tfstate.gpg state/
+
+      - name: Update state
+        if: inputs.goal == 'apply'
+        run: |
+          set -x 
+          
+          cd state/
+          
+          if git diff --exit-code --quiet -- terraform.tfstate.gpg; then
+            echo "No changes in terraform.tfstate.gpg"
+            exit 0
+          else
+            git config --global user.name "github-actions[bot]"
+            git config --global user.email "github-actions[bot]+username@users.noreply.github.com"          
+            git add terraform.tfstate.gpg
+            git commit -m "Auto-update terraform.tfstate.gpg"
+            git push
+          fi
