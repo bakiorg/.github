@@ -14,5 +14,5 @@ locals {
 }
 
 data "github_app" "bakiorg_github" {
-  slug = local.bakiorg_github_app_nam
+  slug = local.bakiorg_github_app_name
 }
