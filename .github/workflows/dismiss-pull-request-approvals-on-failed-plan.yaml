@@ -27,7 +27,7 @@ jobs:
           gh api "$GITHUB_PULL_REQUEST_URL/reviews" \
             --jq '.[] | select(.state == "APPROVED") | .id' \
             | xargs -I '{}' gh api --method=PUT -f message="Dismissed due to PR edit." \
-            /GITHUB_PULL_REQUEST_URL/reviews/'{}'/dismissals
+            /$GITHUB_PULL_REQUEST_URL/reviews/'{}'/dismissals
 
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
