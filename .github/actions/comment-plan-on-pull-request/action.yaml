@@ -27,7 +27,7 @@ runs:
         
         message="The Terraform configuration changes resulted with the following [plan]($TERRAFORM_PLAN_ARTIFACT_LINK)\"+
         "\`\`\`diff\"+
-        "$(cat tfplan_short)\"
+        $(cat tfplan_short)+"\"
         +"\`\`\`"
         
         echo "$message" > message.md
