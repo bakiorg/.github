@@ -119,7 +119,7 @@ jobs:
           gh pr checkout "$pull_request_number"
           commit_sha=$(git rev-parse --short HEAD)
 
-          checks=$(gh pr checks "$pull_request_number: | tee)
+          checks=$(gh pr checks "$pull_request_number" | tee)
           regex2="\/runs\/([0-9]*)\/job\/"
           run_number=0
           if [[ $checks =~ $regex2 ]]; then
