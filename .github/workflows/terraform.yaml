@@ -136,12 +136,34 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      # - name: Download Terraform Plan from original PR build artifacts
+      #   if: inputs.goal == 'apply'
+      #   uses: actions/download-artifact@eaceaf801fd36c7dee90939fad912460b18a1ffe # v4.1.2
+      #   with:
+      #     #name: tfplan-${{ steps.get-short-commit-sha-for-source-pull-request.outputs.short-commit-sha }}
+      #     run-id: ${{ steps.get-short-commit-sha-for-source-pull-request.outputs.run-number }}
+
       - name: Download Terraform Plan from original PR build artifacts
         if: inputs.goal == 'apply'
-        uses: actions/download-artifact@eaceaf801fd36c7dee90939fad912460b18a1ffe # v4.1.2
-        with:
-          #name: tfplan-${{ steps.get-short-commit-sha-for-source-pull-request.outputs.short-commit-sha }}
-          run-id: ${{ steps.get-short-commit-sha-for-source-pull-request.outputs.run-number }}
+        run: |
+          set -x 
+
+          gh run download "$RUN_ID" 
+        env:
+          NAME: tfplan-${{ steps.get-short-commit-sha-for-source-pull-request.outputs.short-commit-sha }}
+          RUN_ID: ${{ steps.get-short-commit-sha-for-source-pull-request.outputs.run-number }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Apply Terraform
+        if: inputs.goal == 'apply'
+        run: |
+          set -x
+
+          apply=$(terraform apply -no-color "$PLAN_FILE_NAME/$PLAN_FILE_NAME")
+
+          echo "apply output: $apply"
+        env:
+          PLAN_FILE_NAME: tfplan-${{ steps.get-short-commit-sha-for-source-pull-request.outputs.short-commit-sha }}
 
       - name: Apply Terraform
         if: inputs.goal == 'apply'
