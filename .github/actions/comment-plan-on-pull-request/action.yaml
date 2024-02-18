@@ -30,7 +30,7 @@ runs:
         cat > message.md << EOF
         The Terraform configuration changes resulted with the following [plan]($TERRAFORM_PLAN_ARTIFACT_LINK).
         <details>
-          <summary>Detailed plan output</summary>
+          <summary>Detailed plan output:</summary>
         
         \`\`\`diff
         $plan
@@ -47,4 +47,6 @@ runs:
       uses: mshick/add-pr-comment@v2.8.2
       with:
         message-path: message.md
-
+        message-failure: |-  
+          We had some issues formatting the plan for you, 
+          but you can still see it using this [link](${{ inputs.terraform-plan-artifact-link }})
