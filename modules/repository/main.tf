@@ -1,5 +1,5 @@
 variable "name" {
-  type = string
+  type        = string
   description = "The name of the repository. Must be unique within the same organization"
 }
 
@@ -8,27 +8,33 @@ variable "team_owner_name" {
 }
 
 variable "is_archived" {
-  type = bool
-  default = false
+  type        = bool
+  default     = false
   description = "Whether the repository is a read-only archive. Default: false"
 }
 
 variable "actions_secrets_global" {
   type = map(object({
-    secret_name = string
+    secret_name     = string
     encrypted_value = string
   }))
-  default = {}
+  default     = {}
   description = "A map of secret names to encrypted values. Default: empty"
 }
 
 variable "actions_variables_global" {
   type = map(object({
-    variable_key = string
+    variable_key   = string
     variable_value = string
   }))
-  default = {}
+  default     = {}
   description = "A map of environment variable keys to values. Default: empty"
+}
+
+variable "required_status_checks" {
+  type        = set(string)
+  default     = []
+  description = "A set of all required status checks"
 }
 
 resource "github_repository" "repository" {
@@ -60,7 +66,7 @@ resource "github_repository_collaborators" "repository_collaborators" {
 
   team {
     permission = "maintain"
-    team_id = var.team_owner_name
+    team_id    = var.team_owner_name
   }
 }
 
@@ -78,21 +84,27 @@ resource "github_branch_default" "main" {
   depends_on = [github_branch.main]
 }
 
-resource "github_branch_protection_v3" "main" {
-  repository     = github_repository.repository.name
-  branch         = github_branch.main.branch
-  enforce_admins = true
+resource "github_branch_protection" "main" {
+  repository_id                   = github_repository.repository.name
+  pattern                         = github_branch.main.branch
+  enforce_admins                  = true
   require_conversation_resolution = true
+  required_linear_history         = true
+
+  required_status_checks {
+    contexts = var.required_status_checks
+    strict   = true
+  }
 
   required_pull_request_reviews {
-    dismiss_stale_reviews = true
-    require_code_owner_reviews = true
+    dismiss_stale_reviews           = true
+    require_code_owner_reviews      = true
+    require_last_push_approval      = true
     required_approving_review_count = 1
 
-    bypass_pull_request_allowances {
-      apps = ["bakiorg-github"]
-      users = ["bakilol"]
-    }
+    pull_request_bypassers = [
+      "/bakilol"
+    ]
   }
 
   depends_on = [github_branch.main]
@@ -124,17 +136,17 @@ resource "github_issue_labels" "labels" {
 resource "github_actions_secret" "repository_secret" {
   for_each = var.actions_secrets_global
 
-  repository  = github_repository.repository.name
-  secret_name = each.value.secret_name
+  repository      = github_repository.repository.name
+  secret_name     = each.value.secret_name
   encrypted_value = each.value.encrypted_value
 }
 
 resource "github_actions_variable" "repository_variable" {
   for_each = var.actions_variables_global
 
-  repository  = github_repository.repository.name
+  repository    = github_repository.repository.name
   variable_name = each.value.variable_key
-  value = each.value.variable_value
+  value         = each.value.variable_value
 }
 
 

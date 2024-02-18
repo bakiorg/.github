@@ -1,0 +1,44 @@
+name: Pull request review
+on:
+  pull_request_review:
+    types:
+      - submitted
+
+jobs:
+  dismiss-pull-request-approvals-on-failed-plan:
+    name: Validate approving reviews
+    if: github.event.review.state == 'APPROVED'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check whether if the 'Terraform / Plan' workflow has passed
+        id: check-whether-all-ci-workflows-have-passed
+        continue-on-error: true
+        run: |
+          set -x 
+          
+          outcome=$(gh api "https://api.github.com/repos/$GITHUB_REPOSITORY/commits/$GIT_COMMIT_SHA/check-runs" \
+            | jq '.check_runs[] | select(.name == "Terraform / Plan") | .conclusion')
+          
+          [[ "$outcome" = "\"success\"" ]]
+
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GIT_COMMIT_SHA: ${{ github.event.review.commit_id }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+
+      - name: Dismiss approvals if CI workflows have not passed
+        if: steps.check-whether-all-ci-workflows-have-passed.outcome == 'failure'
+        run: |
+          set -x
+          
+          gh api "$GITHUB_PULL_REQUEST_URL/reviews" \
+            --jq '.[] | select(.state == "APPROVED") | .id' \
+            | xargs -I '{}' gh api --method=PUT -f message="Dismissed because of failing CI checks." \
+            $GITHUB_PULL_REQUEST_URL/reviews/'{}'/dismissals
+          
+          echo "The received approval(s) are invalid. They have been dismissed"
+          exit 1
+
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_PULL_REQUEST_URL: ${{ github.event.review.pull_request_url }}

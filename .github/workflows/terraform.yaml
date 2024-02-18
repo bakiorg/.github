@@ -1,11 +1,176 @@
 on:
   workflow_call:
     inputs:
-
+      goal:
+        type: string
+        description: "What Terraform goal to run. One of: plan, apply"
 
 concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
 
+env:
+  TF_VAR_GITHUB_APP_ID: ${{ vars.BAKIORG_GITHUB_APP_ID }}
+  TF_VAR_GITHUB_APP_INSTALLATION_ID: ${{ vars.BAKIORG_GITHUB_APP_INSTALLATION_ID }}
 
 jobs:
   run-terraform:
+    name: ${{ inputs.goal == 'plan' && 'Plan' || 'Apply' }}
+    if: inputs.goal == 'plan' || inputs.goal == 'apply'
     runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+        with:
+          fetch-depth: 0
+
+      - name: Checkout state
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+        with:
+          fetch-depth: 0
+          ref: terraform-state
+          path: state/
+
+      - name: Copy state to workdir
+        run: cp state/terraform.tfstate.gpg .
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@a1502cd9e758c50496cc9ac5308c4843bcd56d36 # v3.0.0
+
+      - name: Format Terraform
+        run: terraform fmt -check -recursive
+
+      - name: Initialize Terraform
+        run: terraform init
+
+      - name: Validate Terraform
+        run: terraform validate
+
+      - name: Put GitHub app private key in .pem file and configure environment variable
+        run: |
+          set -x
+
+          file_name="github-app-private-key.pem"
+
+          echo "$GITHUB_APP_PRIVATE_KEY" > "$file_name"
+          echo "TF_VAR_GITHUB_APP_PEM_FILE=$file_name" >> "$GITHUB_ENV"
+
+        env:
+          GITHUB_APP_PRIVATE_KEY: ${{ secrets.BAKIORG_GITHUB_APP_PRIVATE_KEY }}
+
+      - name: Decrypt Terraform state
+        run: |
+          gpg --quiet --batch --yes --decrypt --passphrase="$DECRYPT_KEY" \
+          --output terraform.tfstate terraform.tfstate.gpg
+
+        env:
+          DECRYPT_KEY: ${{ secrets.BAKIORG_TERRAFORM_TFSTATE_GPG_KEY }}
+
+      - name: Get short commit SHA
+        id: get-short-commit-sha
+        uses: ./.github/actions/get-short-commit-sha
+
+      - name: Terraform Plan
+        if: inputs.goal == 'plan'
+        id: terraform-plan
+        run: |
+          file_name="tfplan-$SHORT_COMMIT_SHA"
+
+          terraform plan -out="$file_name"
+
+          echo "terraform-plan-file-name=$file_name" >> "$GITHUB_OUTPUT"
+
+        env:
+          SHORT_COMMIT_SHA: ${{ steps.get-short-commit-sha.outputs.short-commit-sha }}
+
+      - name: Upload Terraform Plan as build artifact
+        if: inputs.goal == 'plan'
+        id: upload-terraform-plan-as-build-artifact
+        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        with:
+          name: ${{ steps.terraform-plan.outputs.terraform-plan-file-name }}
+          path: ./${{ steps.terraform-plan.outputs.terraform-plan-file-name }}
+
+      - name: Comment Terraform plan on pull request
+        if: inputs.goal == 'plan'
+        uses: ./.github/actions/comment-plan-on-pull-request
+        with:
+          terraform-plan-file-name: ${{ steps.terraform-plan.outputs.terraform-plan-file-name }}
+          terraform-plan-artifact-link: ${{ steps.upload-terraform-plan-as-build-artifact.outputs.artifact-url }}
+
+      - name: Get short commit SHA for source pull request
+        if: inputs.goal == 'apply'
+        id: get-short-commit-sha-for-source-pull-request
+        run: |
+          set -x 
+
+          last_commit_message=$(git log --format=%B -n 1 HEAD)
+          regex=".*#([0-9]+)\)"
+
+          pull_request_number=0
+          if [[ $last_commit_message =~ $regex ]]; then
+            pull_request_number="${BASH_REMATCH[1]}"
+            echo "pull_request_number: $number"
+          else
+            echo "Could not find pull request number" 
+            exit 1
+          fi
+
+          gh pr checkout $pull_request_number
+          commit_sha=$(git rev-parse --short HEAD)
+
+          echo "short-commit-sha=$commit_sha" >> "$GITHUB_OUTPUT"
+
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Download Terraform Plan from original PR build artifacts
+        if: inputs.goal == 'apply'
+        uses: actions/download-artifact@eaceaf801fd36c7dee90939fad912460b18a1ffe # v4.1.2
+        with:
+          name: tfplan-${{ steps.get-short-commit-sha-for-source-pull-request.outputs.short-commit-sha }}
+
+      - name: Apply Terraform
+        if: inputs.goal == 'apply'
+        run: |
+          set -x
+
+          apply=$(terraform apply -no-color "$PLAN_FILE_NAME")
+
+          echo "apply output: $apply"
+        env:
+          PLAN_FILE_NAME: tfplan-${{ steps.get-short-commit-sha-for-source-pull-request.outputs.short-commit-sha }}
+
+      - name: Encrypt Terraform state
+        if: inputs.goal == 'apply'
+        run: |
+          gpg --quiet --yes --batch --passphrase="$ENCRYPT_KEY" --cipher-algo BLOWFISH \
+          --output terraform.tfstate.gpg --symmetric terraform.tfstate
+
+        env:
+          ENCRYPT_KEY: ${{ secrets.BAKIORG_TERRAFORM_TFSTATE_GPG_KEY }}
+
+      - name: Copy new state to 'state' working directory
+        if: inputs.goal == 'apply'
+        run: |
+          set -x 
+
+          cp terraform.tfstate.gpg state/
+
+      - name: Update state
+        if: inputs.goal == 'apply'
+        run: |
+          set -x 
+
+          cd state/
+
+          if git diff --exit-code --quiet -- terraform.tfstate.gpg; then
+            echo "No changes in terraform.tfstate.gpg"
+            exit 0
+          else
+            git config --global user.name "github-actions[bot]"
+            git config --global user.email "github-actions[bot]+username@users.noreply.github.com"          
+            git add terraform.tfstate.gpg
+            git commit -m "Auto-update terraform.tfstate.gpg"
+            git push
+          fi

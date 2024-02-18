@@ -1,3 +1,4 @@
+name: CI
 on:
   pull_request:
     branches:
@@ -10,3 +11,10 @@ jobs:
     secrets: inherit
     with:
       github_ref: ${{ github.event.pull_request.head.ref }}
+
+  terraform-plan:
+    name: Terraform
+    uses: ./.github/workflows/terraform.yaml
+    secrets: inherit
+    with:
+      goal: plan

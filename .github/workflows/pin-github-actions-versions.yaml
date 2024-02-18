@@ -1,3 +1,4 @@
+name: CI
 on:
   workflow_call:
     inputs:
@@ -42,7 +43,12 @@ jobs:
         continue-on-error: true
         run: |
           set -x
-          pin-github-action -c " {ref}" ./.github/workflows/*.yaml
+
+          files=$(find ./.github/ -type f -iname "*.yaml")
+
+          echo "$files" | while read line ; do
+            pin-github-action -c " {ref}" "$line" || true
+          done
 
         env:
           GH_ADMIN_TOKEN: ${{ steps.create-token-for-github-app-bakiorg-github-workflow-updater.outputs.token }}
