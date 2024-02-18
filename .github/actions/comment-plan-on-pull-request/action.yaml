@@ -30,7 +30,7 @@ runs:
         echo "The Terraform configuration changes resulted with the following [plan]($TERRAFORM_PLAN_ARTIFACT_LINK):
         
         ```diff
-        $(cat tfplan_short)"
+        $(cat tfplan_short)
         ```
         " >> message.md
 
