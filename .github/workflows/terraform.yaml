@@ -100,6 +100,8 @@ jobs:
       - name: Get SHA for head of source pull request
         #        if: inputs.goal == 'apply'
         run: |
+          set -x 
+          
           last_commit_message=$(git log --format=%B -n 1 HEAD)
           regex=".*#([0-9]+)\)"
 
