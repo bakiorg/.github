@@ -25,9 +25,3 @@ module "github" {
     }
   }
 }
-
-module "test" {
-  source          = "./modules/repository"
-  name            = "test"
-  team_owner_name = module.owners.team_name
-}
