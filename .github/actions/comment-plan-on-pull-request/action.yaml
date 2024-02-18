@@ -25,7 +25,7 @@ runs:
         # Mark destructions 
         sed -i 's/\(^\s*\)-/-&/' tfplan_short
 
-        echo"plan=$(cat tfplan_short)" >> "$GITHUB_OUTPUT"
+        echo "plan=$(cat tfplan_short)" >> "$GITHUB_OUTPUT"
 
       env:
         TERRAFORM_PLAN_FILE: ${{ inputs.terraform-plan-file-name }}
