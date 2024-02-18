@@ -12,15 +12,15 @@ runs:
       shell: bash
       run: |
         set -x
-        
+
         commit_sha=""
         if [ -z "$(git symbolic-ref HEAD 2>/dev/null)" ]; then
           echo "Detached HEAD state"
           echo "Getting commit SHA from HEAD^2, as most likely a GitHub merge commit has been checked out"
-        
+
           commit_sha=$(git rev-parse --short HEAD^2)
         else
           commit_sha=$(git rev-parse --short HEAD)
         fi
-        
+
         echo "short-commit-sha=$commit_sha" >> "$GITHUB_OUTPUT"
