@@ -116,7 +116,7 @@ jobs:
 
           gh pr checkout $pull_request_number
           commit_sha=$(git rev-parse --short HEAD)
-          
+
           echo "short-commit-sha=$commit_sha" >> "$GITHUB_OUTPUT"
 
         env:
