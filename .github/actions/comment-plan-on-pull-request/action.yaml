@@ -24,8 +24,6 @@ runs:
         sed -i 's/\(^\s*\)~/!&/' tfplan_short
         # Mark destructions 
         sed -i 's/\(^\s*\)-/-&/' tfplan_short
-
-        echo "plan=$(cat tfplan_short)" >> "$GITHUB_OUTPUT"
         
         echo "The Terraform configuration changes resulted with the following [plan]($TERRAFORM_PLAN_ARTIFACT_LINK):
         
