@@ -1,5 +1,9 @@
 on:
   workflow_call:
+    inputs:
+      goal:
+        type: string
+        description: "What Terraform goal to run. One of: plan, apply"
 
 concurrency:
   group: ${{ github.workflow }}
@@ -11,7 +15,8 @@ env:
 
 jobs:
   run-terraform:
-    name: Plan Terraform
+    name: ${{ inputs.goal == 'plan' && 'Plan' || 'Apply' }}
+    if: inputs.goal == 'plan' || inputs.goal == 'apply'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -22,7 +27,7 @@ jobs:
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3.0.0
 
-      - name: Terraform Init
+      - name: Initialize Terraform
         run: terraform init
 
       - name: Put GitHub app private key in .pem file and configure environment variable
@@ -45,5 +50,24 @@ jobs:
         env:
           DECRYPT_KEY: ${{ secrets.BAKIORG_TERRAFORM_TFSTATE_GPG_KEY }}
 
+      - name: Get short commit SHA
+        id: get-short-commit-sha
+        uses: ./.github/actions/get-short-commit-sha
+
       - name: Terraform Plan
-        run: terraform plan -out=tfplan
+        id: terraform-plan
+        run: |
+          file_name="tfplan-$SHORT_COMMIT_SHA"
+          
+          terraform plan -out=tfplan-"$file_name"
+          
+          echo "terraform-plan-file-name=$file_name" >> "$GITHUB_OUTPUT"
+
+        env:
+          SHORT_COMMIT_SHA: ${{ steps.get-short-commit-sha.outputs.short-commit-sha }}
+
+      - name: Upload Terraform Plan as Build Artifact
+        uses: actions/upload-artifact@v4.3.1
+        with:
+          name: ${{ steps.terraform-plan.outputs.terraform-plan-file-name }}
+          path: ./${{ steps.terraform-plan.outputs.terraform-plan-file-name }}

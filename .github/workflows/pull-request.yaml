@@ -11,7 +11,9 @@ jobs:
     with:
       github_ref: ${{ github.event.pull_request.head.ref }}
 
-  plan-terraform:
-    name: Plan Terraform
+  terraform:
+    name: Terraform
     uses: ./.github/workflows/terraform.yaml
     secrets: inherit
+    with:
+      goal: plan
