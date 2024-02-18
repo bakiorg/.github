@@ -116,10 +116,22 @@ jobs:
             exit 1
           fi
 
-          gh pr checkout $pull_request_number
+          gh pr checkout "$pull_request_number"
           commit_sha=$(git rev-parse --short HEAD)
 
+          checks=$(gh pr checks "$pull_request_number: | tee)
+          regex2="\/runs\/([0-9]*)\/job\/"
+          run_number=0
+          if [[ $checks =~ $regex2 ]]; then
+            run_number="${BASH_REMATCH[1]}"
+            echo "run: $run_number"
+          else
+            echo "Could not find run number" 
+            exit 1
+          fi
+
           echo "short-commit-sha=$commit_sha" >> "$GITHUB_OUTPUT"
+          echo "run-number=$run_number" >> "$GITHUB_OUTPUT"
 
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -129,6 +141,7 @@ jobs:
         uses: actions/download-artifact@eaceaf801fd36c7dee90939fad912460b18a1ffe # v4.1.2
         with:
           name: tfplan-${{ steps.get-short-commit-sha-for-source-pull-request.outputs.short-commit-sha }}
+          run-id: ${{ steps.get-short-commit-sha-for-source-pull-request.outputs.run-number }}
 
       - name: Apply Terraform
         if: inputs.goal == 'apply'
