@@ -47,7 +47,7 @@ jobs:
           files=$(find ./.github/ -type f -iname "*.yaml")
 
           echo "$files" | while read line ; do
-            pin-github-action -c " {ref}" "$line"
+            pin-github-action -c " {ref}" "$line" || true
           done
 
         env:
