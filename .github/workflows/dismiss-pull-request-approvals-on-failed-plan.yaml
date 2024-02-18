@@ -16,6 +16,9 @@ jobs:
           
           gh pr checks 1> /dev/null
 
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Dismiss approvals if CI workflows have not passed
         if: steps.check-whether-all-ci-workflows-have-passed.outcome == 'failure'
         run: |
@@ -27,4 +30,5 @@ jobs:
             /GITHUB_PULL_REQUEST_URL/reviews/'{}'/dismissals
 
         env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_PULL_REQUEST_URL: ${{ github.event.review.pull_request_url }}
