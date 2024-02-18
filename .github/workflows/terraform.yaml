@@ -55,6 +55,7 @@ jobs:
         uses: ./.github/actions/get-short-commit-sha
 
       - name: Terraform Plan
+        if: inputs.goal == 'plan'
         id: terraform-plan
         run: |
           file_name="tfplan-$SHORT_COMMIT_SHA"
@@ -66,8 +67,16 @@ jobs:
         env:
           SHORT_COMMIT_SHA: ${{ steps.get-short-commit-sha.outputs.short-commit-sha }}
 
-      - name: Upload Terraform Plan as Build Artifact
+      - name: Upload Terraform Plan as build artifact
+        if: inputs.goal == 'plan'
+        id: upload-terraform-plan-as-build-artifact
         uses: actions/upload-artifact@v4.3.1
         with:
           name: ${{ steps.terraform-plan.outputs.terraform-plan-file-name }}
           path: ./${{ steps.terraform-plan.outputs.terraform-plan-file-name }}
+
+      - name: Comment Terraform plan on pull request
+        uses: ./.github/actions/comment-plan-on-pull-request
+        with:
+          terraform-plan-file-name: ${{ steps.terraform-plan.outputs.terraform-plan-file-name }}
+          terraform-plan-artifact-link: ${{ steps.upload-terraform-plan-as-build-artifact.outputs.artifact-url }}
