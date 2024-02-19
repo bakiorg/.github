@@ -37,7 +37,6 @@ runs:
 
         cat > message.md << EOF
         The Terraform configuration changes resulted with the following plan:
-
         ### Summary  
         \`\`\`diff
         + 0 to add ✅
