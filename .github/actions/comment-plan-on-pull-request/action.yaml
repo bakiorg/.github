@@ -44,14 +44,11 @@ runs:
         ! 1 to change 🔀
         - 0 to destroy 💥
         \`\`\`
-
         <details>
           <summary>Detailed plan output:</summary>
-
         \`\`\`diff
         $plan
         \`\`\`
-
         </details>
         EOF
 
