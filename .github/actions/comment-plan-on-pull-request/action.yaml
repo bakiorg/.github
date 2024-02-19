@@ -44,21 +44,17 @@ runs:
 
         cat > message.md << EOF
         The Terraform configuration changes resulted with the following plan:
-
         ### Summary  
         \`\`\`diff
         + $add to add ✅
         ! $change to change 🔀
         - $destroy to destroy 💥
         \`\`\`
-        
         <details>
           <summary>Detailed plan output:</summary>
-        
         \`\`\`diff
         $plan
         \`\`\`
-        
         </details>
         EOF
         
