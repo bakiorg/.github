@@ -3,9 +3,6 @@ inputs:
   terraform-plan-file-name:
     type: string
     description: The name of the Terraform plan file used for the comment
-  terraform-plan-artifact-link:
-    type: string
-    description: The link to the build artifact containing the Terraform plan
 
 runs:
   using: composite
@@ -40,9 +37,9 @@ runs:
         plan=$(cat tfplan_short)
 
         cat > message.md << EOF
-        The Terraform configuration changes resulted with the following [plan]($TERRAFORM_PLAN_ARTIFACT_LINK).
+        The Terraform configuration changes resulted with the following plan:
 
-        ### Plan summary  
+        ### Summary  
         \`\`\`diff
         + 0 to add ✅
         ! 1 to change 🔀
@@ -61,7 +58,6 @@ runs:
 
       env:
         TERRAFORM_PLAN_FILE_NAME: ${{ inputs.terraform-plan-file-name }}
-        TERRAFORM_PLAN_ARTIFACT_LINK: ${{ inputs.terraform-plan-artifact-link }}
 
     - name: Add pull request comment with Terraform plan
       if: steps.trim-terraform-plan.formatted-plan-exists == 'true'
@@ -71,4 +67,4 @@ runs:
         # message-id: terraform-plan
         message-failure: |-
           We had some issues formatting the plan for you, 
-          but you can still see it using this [link](${{ inputs.terraform-plan-artifact-link }})
+          but you can still see it from the workflow run
