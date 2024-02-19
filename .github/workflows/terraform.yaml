@@ -60,7 +60,7 @@ jobs:
       - name: Decrypt Terraform state
         run: |
           set -x
-          
+
           gpg --quiet --batch --yes --decrypt --passphrase="$DECRYPT_KEY" \
           --output terraform.tfstate terraform.tfstate.gpg
 
@@ -75,7 +75,7 @@ jobs:
         id: terraform-plan
         run: |
           set -x
-          
+
           file_name="tfplan"
           terraform plan -out="$file_name"
           echo "terraform-plan-file-name=$file_name" >> "$GITHUB_OUTPUT"
@@ -111,7 +111,7 @@ jobs:
         if: inputs.goal == 'apply'
         run: |
           set -x
-          
+
           file_name="tfapply"
           terraform apply -auto-approve -no-color "$PLAN_FILE_NAME" >> "$file_name"
           echo "terraform-apply-file-name="$file_name" >> "$GITHUB_OUTPUT"
