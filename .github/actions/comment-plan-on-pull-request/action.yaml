@@ -63,7 +63,7 @@ runs:
       env:
         TERRAFORM_PLAN_FILE_NAME: ${{ inputs.terraform-plan-file-name }}
 
-    - name: Add pull request comment with Terraform plan
-      uses: mshick/add-pr-comment@b8f338c590a895d50bcbfa6c5859251edc8952fc # v2.8.2
-      with:
-        message-path: message.md
+#    - name: Add pull request comment with Terraform plan
+#      uses: mshick/add-pr-comment@b8f338c590a895d50bcbfa6c5859251edc8952fc # v2.8.2
+#      with:
+#        message-path: message.md
