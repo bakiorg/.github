@@ -15,10 +15,10 @@ runs:
         if terraform show -no-color "$TERRAFORM_PLAN_FILE_NAME" | grep "No changes. Your infrastructure matches the configuration."; then
           echo "No plan to format"
           
-          cat > message.md << EOF
-          We had some issues formatting the plan for you, 
-          but you can still see it from the workflow run
-          EOF
+          #cat > message.md << EOF
+          #We had some issues formatting the plan for you, 
+          #but you can still see it from the workflow run
+          #EOF
         
           exit 0
         fi
