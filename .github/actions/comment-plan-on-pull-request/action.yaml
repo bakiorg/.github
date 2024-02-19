@@ -22,7 +22,6 @@ runs:
         
           exit 0
         fi
-        echo "formatted-plan-exists=true" >> "$GITHUB_OUTPUT"
 
         terraform show -no-color "$TERRAFORM_PLAN_FILE_NAME" | awk '/Terraform will perform the following actions:/{flag=1; next} flag' > tfplan_short
 
@@ -52,9 +51,11 @@ runs:
         \`\`\`
         <details>
           <summary>Detailed plan output:</summary>
+        
         \`\`\`diff
         $plan
         \`\`\`
+        
         </details>
         EOF
         
