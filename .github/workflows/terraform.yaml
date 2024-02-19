@@ -113,8 +113,8 @@ jobs:
           set -x
 
           file_name="tfapply"
-          terraform apply -auto-approve -no-color "$PLAN_FILE_NAME" >> "$file_name"
-          echo "terraform-apply-file-name="$file_name" >> "$GITHUB_OUTPUT"
+          terraform apply -auto-approve -no-color "$PLAN_FILE_NAME" > "$file_name"
+          echo "terraform-apply-file-name=$file_name" >> "$GITHUB_OUTPUT"
 
         env:
           PLAN_FILE_NAME: ${{ steps.terraform-plan.outputs.terraform-plan-file-name }}
