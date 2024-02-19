@@ -1,4 +1,4 @@
-name: Get short commit SHA
+name: Comment Terraform plan on pull request
 inputs:
   terraform-plan-file-name:
     type: string
@@ -8,63 +8,57 @@ runs:
   using: composite
   steps:
     - name: Trim terraform plan
-      id: trim-terraform-plan
       shell: bash
       run: |
         set -x
 
         if terraform show -no-color "$TERRAFORM_PLAN_FILE_NAME" | grep "No changes. Your infrastructure matches the configuration."; then
-          echo "No plan to format"
-          echo "formatted-plan-exists=false" >> "$GITHUB_OUTPUT"
+          echo "No changes. Your infrastructure matches the configuration. ✅" > message.md
           exit 0
         fi
-        echo "formatted-plan-exists=true" >> "$GITHUB_OUTPUT"
 
-        terraform show -no-color "$TERRAFORM_PLAN_FILE_NAME" | awk '/Terraform will perform the following actions:/{flag=1; next} flag' >> tfplan_short
+        terraform show -no-color "$TERRAFORM_PLAN_FILE_NAME" | awk '/Terraform will perform the following actions:/{flag=1; next} flag' > tfplan_short
 
         numbers=$(cat tfplan_short | grep -oP 'Plan: (\d+ to add, \d+ to change, \d+ to destroy.)' | awk '{print $2, $5, $8}')
-        add=$(echo "$numbers" | cut -d " " -f 1)
-        change=$(echo "$numbers" | cut -d " " -f 2)
-        destroy=$(echo "$numbers" | cut -d " " -f 3)
-
+        
         # Mark additions 
         sed -i 's/\(^\s*\)+/+&/' tfplan_short
+        add=$(echo "$numbers" | cut -d " " -f 1)
+        
         # Mark changes 
-        sed -i 's/\(^\s*\)~/!&/' tfplan_short
+        sed -i 's/\(^\s*\)~/!&/' tfplan_short      
+        change=$(echo "$numbers" | cut -d " " -f 2)
+        
         # Mark destructions   
         sed -i 's/\(^\s*\)-/-&/' tfplan_short
+        destroy=$(echo "$numbers" | cut -d " " -f 3)
 
         plan=$(cat tfplan_short)
 
         cat > message.md << EOF
         The Terraform configuration changes resulted with the following plan:
-
         ### Summary  
         \`\`\`diff
-        + 0 to add ✅
-        ! 1 to change 🔀
-        - 0 to destroy 💥
+        + $add to add ✅
+        ! $change to change 🔀
+        - $destroy to destroy 💥
         \`\`\`
-
         <details>
           <summary>Detailed plan output:</summary>
-
+        
         \`\`\`diff
         $plan
         \`\`\`
-
+        
         </details>
         EOF
+        
+        cat message.md
 
       env:
         TERRAFORM_PLAN_FILE_NAME: ${{ inputs.terraform-plan-file-name }}
 
     - name: Add pull request comment with Terraform plan
-      if: steps.trim-terraform-plan.formatted-plan-exists == 'true'
       uses: mshick/add-pr-comment@b8f338c590a895d50bcbfa6c5859251edc8952fc # v2.8.2
       with:
         message-path: message.md
-        # message-id: terraform-plan
-        message-failure: |-
-          We had some issues formatting the plan for you, 
-          but you can still see it from the workflow run
