@@ -22,16 +22,18 @@ runs:
         terraform show -no-color "$TERRAFORM_PLAN_FILE_NAME" | awk '/Terraform will perform the following actions:/{flag=1; next} flag' > tfplan_short
 
         numbers=$(cat tfplan_short | grep -oP 'Plan: (\d+ to add, \d+ to change, \d+ to destroy.)' | awk '{print $2, $5, $8}')
-        add=$(echo "$numbers" | cut -d " " -f 1)
-        change=$(echo "$numbers" | cut -d " " -f 2)
-        destroy=$(echo "$numbers" | cut -d " " -f 3)
-
+        
         # Mark additions 
         sed -i 's/\(^\s*\)+/+&/' tfplan_short
+        add=$(echo "$numbers" | cut -d " " -f 1)
+        
         # Mark changes 
-        sed -i 's/\(^\s*\)~/!&/' tfplan_short
+        sed -i 's/\(^\s*\)~/!&/' tfplan_short      
+        change=$(echo "$numbers" | cut -d " " -f 2)
+        
         # Mark destructions   
         sed -i 's/\(^\s*\)-/-&/' tfplan_short
+        destroy=$(echo "$numbers" | cut -d " " -f 3)
 
         plan=$(cat tfplan_short)
 
@@ -50,6 +52,8 @@ runs:
         \`\`\`
         </details>
         EOF
+        
+        cat message.md
 
       env:
         TERRAFORM_PLAN_FILE_NAME: ${{ inputs.terraform-plan-file-name }}
