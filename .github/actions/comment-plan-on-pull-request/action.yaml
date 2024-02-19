@@ -39,9 +39,9 @@ runs:
         The Terraform configuration changes resulted with the following plan:
         ### Summary  
         \`\`\`diff
-        + 0 to add ✅
-        ! 1 to change 🔀
-        - 0 to destroy 💥
+        + $add to add ✅
+        ! $change to change 🔀
+        - $destroy to destroy 💥
         \`\`\`
         <details>
           <summary>Detailed plan output:</summary>
