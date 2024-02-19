@@ -18,12 +18,10 @@ runs:
       run: |
         set -x
 
-        if terraform show -no-color "$TERRAFORM_APPLY_FILE_NAME" | grep "No changes. Your infrastructure matches the configuration."; then
+        if cat "$TERRAFORM_APPLY_FILE_NAME" | grep "No changes. Your infrastructure matches the configuration."; then
           echo "No apply to format"
-          echo "formatted-apply-exists=false" >> "$GITHUB_OUTPUT"
           exit 0
         fi
-        echo "formatted-apply-exists=true" >> "$GITHUB_OUTPUT"
 
         cat "$TERRAFORM_APPLY_FILE_NAME" | awk '/ to destroy./{flag=1; next} flag' > tfapply_short
         apply=$(cat tfapply_short)
@@ -46,7 +44,6 @@ runs:
         APPLIED_COMMIT_SHORT_SHA: ${{ inputs.applied-commit-short-sha }}
 
     - name: Add pull request comment with Terraform apply
-      if: steps.trim-terraform-plan.formatted-plan-exists == 'true'
       uses: mshick/add-pr-comment@b8f338c590a895d50bcbfa6c5859251edc8952fc # v2.8.2
       with:
         issue: ${{ inputs.pull-request-number }}
