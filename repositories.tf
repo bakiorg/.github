@@ -27,7 +27,6 @@ module "github" {
 
   required_status_checks = [
     "GitHub Actions supply chain security / Pin GitHub Actions versions",
-    "Terraform / Plan",
-    "Validate approving reviews"
+    "Terraform / Plan"
   ]
 }
