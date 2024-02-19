@@ -124,6 +124,7 @@ jobs:
         uses: ./.github/actions/comment-apply-on-pull-request
         with:
           terraform-apply-file-name: ${{ steps.terraform-apply.outputs.terraform-apply-file-name }}
+          pull-request-number: ${{ steps.get-source-pull-request-number.outputs.pull-request-number }}
           applied-commit-short-sha: ${{ steps.get-short-commit-sha.outputs.short-commit-sha }}
 
       - name: Encrypt Terraform state
