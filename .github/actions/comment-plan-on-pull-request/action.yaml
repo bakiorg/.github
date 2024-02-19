@@ -1,4 +1,4 @@
-name: Get short commit SHA
+name: Comment Terraform plan on pull request
 inputs:
   terraform-plan-file-name:
     type: string
@@ -8,7 +8,6 @@ runs:
   using: composite
   steps:
     - name: Trim terraform plan
-      id: trim-terraform-plan
       shell: bash
       run: |
         set -x
@@ -20,7 +19,7 @@ runs:
         fi
         echo "formatted-plan-exists=true" >> "$GITHUB_OUTPUT"
 
-        terraform show -no-color "$TERRAFORM_PLAN_FILE_NAME" | awk '/Terraform will perform the following actions:/{flag=1; next} flag' >> tfplan_short
+        terraform show -no-color "$TERRAFORM_PLAN_FILE_NAME" | awk '/Terraform will perform the following actions:/{flag=1; next} flag' > tfplan_short
 
         numbers=$(cat tfplan_short | grep -oP 'Plan: (\d+ to add, \d+ to change, \d+ to destroy.)' | awk '{print $2, $5, $8}')
         add=$(echo "$numbers" | cut -d " " -f 1)
@@ -64,7 +63,6 @@ runs:
       uses: mshick/add-pr-comment@b8f338c590a895d50bcbfa6c5859251edc8952fc # v2.8.2
       with:
         message-path: message.md
-        # message-id: terraform-plan
         message-failure: |-
           We had some issues formatting the plan for you, 
           but you can still see it from the workflow run

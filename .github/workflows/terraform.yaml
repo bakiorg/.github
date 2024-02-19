@@ -51,7 +51,6 @@ jobs:
           set -x
 
           file_name="github-app-private-key.pem"
-
           echo "$GITHUB_APP_PRIVATE_KEY" > "$file_name"
           echo "TF_VAR_GITHUB_APP_PEM_FILE=$file_name" >> "$GITHUB_ENV"
 
@@ -60,6 +59,8 @@ jobs:
 
       - name: Decrypt Terraform state
         run: |
+          set -x
+          
           gpg --quiet --batch --yes --decrypt --passphrase="$DECRYPT_KEY" \
           --output terraform.tfstate terraform.tfstate.gpg
 
@@ -73,10 +74,10 @@ jobs:
       - name: Terraform Plan
         id: terraform-plan
         run: |
+          set -x
+          
           file_name="tfplan"
-
           terraform plan -out="$file_name"
-
           echo "terraform-plan-file-name=$file_name" >> "$GITHUB_OUTPUT"
 
       - name: Comment Terraform plan on pull request
@@ -106,15 +107,24 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Apply Terraform
+        id: terraform-apply
         if: inputs.goal == 'apply'
         run: |
           set -x
+          
+          file_name="tfapply"
+          terraform apply -auto-approve -no-color "$PLAN_FILE_NAME" >> "$file_name"
+          echo "terraform-apply-file-name="$file_name" >> "$GITHUB_OUTPUT"
 
-          apply=$(terraform apply -no-color "$PLAN_FILE_NAME")
-
-          echo "apply output: $apply"
         env:
           PLAN_FILE_NAME: ${{ steps.terraform-plan.outputs.terraform-plan-file-name }}
+
+      - name: Comment Terraform apply on pull request
+        if: inputs.goal == 'apply'
+        uses: ./.github/actions/comment-apply-on-pull-request
+        with:
+          terraform-apply-file-name: ${{ steps.terraform-apply.outputs.terraform-apply-file-name }}
+          applied-commit-short-sha: ${{ steps.get-short-commit-sha.outputs.short-commit-sha }}
 
       - name: Encrypt Terraform state
         if: inputs.goal == 'apply'

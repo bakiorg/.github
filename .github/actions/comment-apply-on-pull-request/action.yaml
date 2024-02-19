@@ -1,0 +1,56 @@
+name: Comment Terraform apply on pull request
+inputs:
+  terraform-apply-file-name:
+    type: string
+    description: The name of the Terraform apply file used for the comment
+  pull-request-number:
+    type: number
+    description: The number of the pull request to comment on
+  applied-commit-short-sha:
+    type: string
+    description: The short SHA of the applied commit
+
+runs:
+  using: composite
+  steps:
+    - name: Trim terraform apply
+      shell: bash
+      run: |
+        set -x
+
+        if terraform show -no-color "$TERRAFORM_APPLY_FILE_NAME" | grep "No changes. Your infrastructure matches the configuration."; then
+          echo "No apply to format"
+          echo "formatted-apply-exists=false" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+        echo "formatted-apply-exists=true" >> "$GITHUB_OUTPUT"
+
+        cat "$TERRAFORM_APPLY_FILE_NAME" | awk '/ to destroy./{flag=1; next} flag' > tfapply_short
+        apply=$(cat tfapply_short)
+
+        cat > message.md << EOF
+        The Terraform configuration changes merged in $APPLIED_COMMIT_SHORT_SHA resulted with the following resource changes:
+
+        <details>
+          <summary>Detailed apply output:</summary>
+
+        \`\`\`diff
+        $apply
+        \`\`\`
+
+        </details>
+        EOF
+
+      env:
+        TERRAFORM_APPLY_FILE_NAME: ${{ inputs.terraform-apply-file-name }}
+        APPLIED_COMMIT_SHORT_SHA: ${{ inputs.applied-commit-short-sha }}
+
+    - name: Add pull request comment with Terraform apply
+      if: steps.trim-terraform-plan.formatted-plan-exists == 'true'
+      uses: mshick/add-pr-comment@b8f338c590a895d50bcbfa6c5859251edc8952fc # v2.8.2
+      with:
+        issue: ${{ inputs.pull-request-number }}
+        message-path: message.md
+        message-failure: |-
+          We had some issues formatting the plan for you, 
+          but you can still see it from the workflow run
