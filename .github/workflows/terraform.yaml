@@ -71,87 +71,38 @@ jobs:
         uses: ./.github/actions/get-short-commit-sha
 
       - name: Terraform Plan
-        if: inputs.goal == 'plan'
         id: terraform-plan
         run: |
-          file_name="tfplan-$SHORT_COMMIT_SHA"
+          file_name="tfplan"
 
           terraform plan -out="$file_name"
 
           echo "terraform-plan-file-name=$file_name" >> "$GITHUB_OUTPUT"
-
-        env:
-          SHORT_COMMIT_SHA: ${{ steps.get-short-commit-sha.outputs.short-commit-sha }}
-
-      - name: Upload Terraform Plan as build artifact
-        if: inputs.goal == 'plan'
-        id: upload-terraform-plan-as-build-artifact
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
-        with:
-          name: ${{ steps.terraform-plan.outputs.terraform-plan-file-name }}
-          path: ./${{ steps.terraform-plan.outputs.terraform-plan-file-name }}
 
       - name: Comment Terraform plan on pull request
         if: inputs.goal == 'plan'
         uses: ./.github/actions/comment-plan-on-pull-request
         with:
           terraform-plan-file-name: ${{ steps.terraform-plan.outputs.terraform-plan-file-name }}
-          terraform-plan-artifact-link: ${{ steps.upload-terraform-plan-as-build-artifact.outputs.artifact-url }}
 
-      - name: Get short commit SHA for source pull request
+      - name: Get source pull request number
         if: inputs.goal == 'apply'
-        id: get-short-commit-sha-for-source-pull-request
+        id: get-source-pull-request-number
         run: |
           set -x 
 
           last_commit_message=$(git log --format=%B -n 1 HEAD)
           regex=".*#([0-9]+)\)"
 
-          pull_request_number=0
           if [[ $last_commit_message =~ $regex ]]; then
             pull_request_number="${BASH_REMATCH[1]}"
-            echo "pull_request_number: $number"
+            echo "pull-request-number=$pull_request_number" >> "$GITHUB_OUTPUT"
           else
             echo "Could not find pull request number" 
             exit 1
           fi
 
-          gh pr checkout "$pull_request_number"
-          commit_sha=$(git rev-parse --short HEAD)
-
-          checks=$(gh pr checks "$pull_request_number" | tee)
-          regex2="\/runs\/([0-9]*)\/job\/"
-          run_number=0
-          if [[ $checks =~ $regex2 ]]; then
-            run_number="${BASH_REMATCH[1]}"
-            echo "run: $run_number"
-          else
-            echo "Could not find run number" 
-            exit 1
-          fi
-
-          echo "short-commit-sha=$commit_sha" >> "$GITHUB_OUTPUT"
-          echo "run-number=$run_number" >> "$GITHUB_OUTPUT"
-
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      # - name: Download Terraform Plan from original PR build artifacts
-      #   if: inputs.goal == 'apply'
-      #   uses: actions/download-artifact@eaceaf801fd36c7dee90939fad912460b18a1ffe # v4.1.2
-      #   with:
-      #     #name: tfplan-${{ steps.get-short-commit-sha-for-source-pull-request.outputs.short-commit-sha }}
-      #     run-id: ${{ steps.get-short-commit-sha-for-source-pull-request.outputs.run-number }}
-
-      - name: Download Terraform Plan from original PR build artifacts
-        if: inputs.goal == 'apply'
-        run: |
-          set -x 
-
-          gh run download "$RUN_ID" 
-        env:
-          NAME: tfplan-${{ steps.get-short-commit-sha-for-source-pull-request.outputs.short-commit-sha }}
-          RUN_ID: ${{ steps.get-short-commit-sha-for-source-pull-request.outputs.run-number }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Apply Terraform
@@ -159,11 +110,11 @@ jobs:
         run: |
           set -x
 
-          apply=$(terraform apply -no-color "$PLAN_FILE_NAME/$PLAN_FILE_NAME")
+          apply=$(terraform apply -no-color "$PLAN_FILE_NAME")
 
           echo "apply output: $apply"
         env:
-          PLAN_FILE_NAME: tfplan-${{ steps.get-short-commit-sha-for-source-pull-request.outputs.short-commit-sha }}
+          PLAN_FILE_NAME: ${{ steps.terraform-plan.outputs.terraform-plan-file-name }}
 
       - name: Encrypt Terraform state
         if: inputs.goal == 'apply'
@@ -174,18 +125,12 @@ jobs:
         env:
           ENCRYPT_KEY: ${{ secrets.BAKIORG_TERRAFORM_TFSTATE_GPG_KEY }}
 
-      - name: Copy new state to 'state' working directory
-        if: inputs.goal == 'apply'
-        run: |
-          set -x 
-
-          cp terraform.tfstate.gpg state/
-
       - name: Update state
         if: inputs.goal == 'apply'
         run: |
           set -x 
 
+          cp terraform.tfstate.gpg state/
           cd state/
 
           if git diff --exit-code --quiet -- terraform.tfstate.gpg; then
