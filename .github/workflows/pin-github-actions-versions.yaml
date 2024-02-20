@@ -2,9 +2,15 @@ name: CI
 on:
   workflow_call:
     inputs:
-      github_ref:
+      github-ref:
         type: string
         required: true
+        description: The GitHub ref to check out
+      update-type:
+        type: string
+        required: true
+        default: pull-request-review
+        description: "The type of update to do. One of: 'commit-directly', 'pull-request-review'"
 
 jobs:
   pin-github-actions-versions:
@@ -12,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Setup Node.js environment
-        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
+        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2  test
 
       - name: Install 'mheap/pin-github-action'
         run: |
@@ -21,7 +27,7 @@ jobs:
 
       - name: Create token for GitHub App 'bakiorg-github-workflow-updater'
         id: create-token-for-github-app-bakiorg-github-workflow-updater
-        uses: actions/create-github-app-token@f4c6bf6752984b3a29fcc135a5e70eb792c40c6b # v1.8.0
+        uses: actions/create-github-app-token@v1.8.0
         with:
           app-id: ${{ vars.BAKIORG_GITHUB_WORKFLOW_UPDATER_APP_ID }}
           private-key: ${{ secrets.BAKIORG_GITHUB_WORKFLOW_UPDATER_APP_PRIVATE_KEY }}
@@ -53,12 +59,29 @@ jobs:
         env:
           GH_ADMIN_TOKEN: ${{ steps.create-token-for-github-app-bakiorg-github-workflow-updater.outputs.token }}
 
+      - name: Find relevant diff
+        id: find-relevant-diff
+        run: |
+          set -x 
+          
+          if git diff --exit-code --quiet -- .github/'*'.yaml; then
+            echo "No changes in .yaml files under directory .github/"
+            echo "found=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "Changes detected .yaml files under directory .github/"
+            git diff .github/'*'.yaml > diff
+            diff=$(cat diff)
+            echo "Exported git diff to file 'diff'. Contents: \n$diff"
+            echo "found=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Commit changes from 'pin-github-actions'
+        if: steps.find-relevant-diff.outputs.found == 'true' && inputs.update-type == 'commit-directly'
         run: |
           set -x
 
-          if git diff --exit-code --quiet -- .github/workflows/; then
-            echo "No changes in .github/workflows/"
+          if git diff --exit-code --quiet -- .github/'*'.yaml; then
+            echo "No changes in .yaml files under directory .github/"
             exit 0
           else
             username="$BAKIORG_GITHUB_WORKFLOW_UPDATER_APP_BOT_NAME"
@@ -67,10 +90,24 @@ jobs:
             git config --global user.name "$username"
             git config --global user.email "$email"          
             git add ./.github/workflows/*.yaml
-            git commit -m "Auto-update GitHub Actions"
+            git commit -m "Pin GitHub Actions versions"
             git push
           fi
 
         env:
           BAKIORG_GITHUB_WORKFLOW_UPDATER_APP_BOT_NAME: ${{ vars.BAKIORG_GITHUB_WORKFLOW_UPDATER_APP_BOT_NAME }}
           BAKIORG_GITHUB_WORKFLOW_UPDATER_APP_BOT_ID: ${{ vars.BAKIORG_GITHUB_WORKFLOW_UPDATER_APP_BOT_ID }}
+
+      - name: Setup reviewdog
+        if: steps.find-relevant-diff.outputs.found == 'true' && inputs.update-type == 'pull-request-review'
+        uses: reviewdog/action-setup@v1.2.1
+
+      - name: Review pull request with 'reviewdog'
+        if: steps.find-relevant-diff.outputs.found == 'true' && inputs.update-type == 'pull-request-review'
+        run: |
+          set -x
+
+          reviewdog -f=diff -reporter=github-pr-review < diff
+
+        env:
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ steps.create-token-for-github-app-bakiorg-github-workflow-updater.outputs.token }}
