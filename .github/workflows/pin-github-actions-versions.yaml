@@ -43,7 +43,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ steps.create-token-for-github-app-bakiorg-github-workflow-updater.outputs.token }}
           GITHUB_REPOSITORY: ${{ github.repository }}
-          GIT_REF: ${{ inputs.github_ref }}
+          GIT_REF: ${{ inputs.github-ref }}
 
       - name: Run 'pin-github-action'
         continue-on-error: true
