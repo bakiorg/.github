@@ -8,7 +8,7 @@ on:
         description: The GitHub ref to check out
       update-type:
         type: string
-        required: true
+        required: false
         default: pull-request-review
         description: "The type of update to do. One of: 'commit-directly', 'pull-request-review'"
 
