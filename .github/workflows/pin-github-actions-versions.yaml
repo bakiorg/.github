@@ -106,6 +106,8 @@ jobs:
         if: steps.find-relevant-diff.outputs.found == 'true' && inputs.update-type == 'pull-request-review'
         run: |
           set -x
+          
+          cat diff
 
           reviewdog -f=diff -reporter=github-pr-review < diff
 
