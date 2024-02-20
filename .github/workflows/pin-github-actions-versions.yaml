@@ -101,7 +101,7 @@ jobs:
         run: |
           set -x
 
-          cat diff | reviewdog -tee -f=diff -reporter=github-pr-review 
+          cat diff | reviewdog -name="Pin GitHub Actions versions" -f=diff -reporter=github-pr-review -tee
 
         env:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
