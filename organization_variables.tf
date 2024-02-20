@@ -16,7 +16,6 @@ resource "github_actions_organization_variable" "bakiorg_github_workflow_updater
   visibility    = "all"
 }
 
-
 resource "github_actions_organization_variable" "bakiorg_github_workflow_updater_app_bot_id" {
   variable_name = "BAKIORG_GITHUB_WORKFLOW_UPDATER_APP_BOT_ID"
   value         = local.bakiorg_github_workflow_updater_app_bot_id
