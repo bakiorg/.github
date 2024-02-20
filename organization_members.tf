@@ -5,5 +5,5 @@ resource "github_membership" "call_me_baki" {
 
 resource "github_membership" "bakilol" {
   username = "bakilol"
-  role     = "member"
+  role     = "admin"
 }
