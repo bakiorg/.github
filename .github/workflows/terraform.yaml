@@ -39,13 +39,12 @@ jobs:
           # https://docs.github.com/en/apps/creating-github-apps/registering-a-github-app/choosing-permissions-for-a-github-app#choosing-permissions-for-git-access          
           git clone "https://x-access-token:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY.git" state/
           cd state/
-          git checkout "$GIT_REF"
+          git checkout terraform-state
           cd ..
 
         env:
           GITHUB_TOKEN: ${{ steps.create-token-for-github-app-bakiorg-github.outputs.token }}
           GITHUB_REPOSITORY: ${{ github.repository }}
-          GIT_REF: ${{ inputs.github_ref }}
 
       - name: Copy state to workdir
         run: cp state/terraform.tfstate.gpg .
