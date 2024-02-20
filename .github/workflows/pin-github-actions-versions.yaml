@@ -101,7 +101,7 @@ jobs:
         run: |
           set -x
           
-          reviewdog -h
+          reviewdog -version
 
           reviewdog -f=diff -f.diff.strip=1 -name="Pin GitHub Actions versions" -reporter=github-pr-review -tee < diff
 
