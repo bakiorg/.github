@@ -2,9 +2,15 @@ name: CI
 on:
   workflow_call:
     inputs:
-      github_ref:
+      github-ref:
         type: string
         required: true
+        description: The GitHub ref to check out
+      update-type:
+        type: string
+        required: false
+        default: pull-request-review
+        description: "The type of update to do. One of: 'commit-directly', 'pull-request-review'"
 
 jobs:
   pin-github-actions-versions:
@@ -21,7 +27,7 @@ jobs:
 
       - name: Create token for GitHub App 'bakiorg-github-workflow-updater'
         id: create-token-for-github-app-bakiorg-github-workflow-updater
-        uses: actions/create-github-app-token@f4c6bf6752984b3a29fcc135a5e70eb792c40c6b # v1.8.0
+        uses: actions/create-github-app-token@v1.8.0
         with:
           app-id: ${{ vars.BAKIORG_GITHUB_WORKFLOW_UPDATER_APP_ID }}
           private-key: ${{ secrets.BAKIORG_GITHUB_WORKFLOW_UPDATER_APP_PRIVATE_KEY }}
@@ -37,7 +43,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ steps.create-token-for-github-app-bakiorg-github-workflow-updater.outputs.token }}
           GITHUB_REPOSITORY: ${{ github.repository }}
-          GIT_REF: ${{ inputs.github_ref }}
+          GIT_REF: ${{ inputs.github-ref }}
 
       - name: Run 'pin-github-action'
         continue-on-error: true
@@ -53,24 +59,51 @@ jobs:
         env:
           GH_ADMIN_TOKEN: ${{ steps.create-token-for-github-app-bakiorg-github-workflow-updater.outputs.token }}
 
+      - name: Find relevant diff
+        id: find-relevant-diff
+        run: |
+          set -x 
+          
+          if git diff --exit-code --quiet -- .github/'*'.yaml; then
+            echo "No changes in .yaml files under directory .github/"
+            echo "found=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "Changes detected .yaml files under directory .github/"
+            git diff .github/'*'.yaml > diff
+            echo "Exported git diff to file 'diff'"
+            echo "found=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Commit changes from 'pin-github-actions'
+        if: steps.find-relevant-diff.outputs.found == 'true' && inputs.update-type == 'commit-directly'
         run: |
           set -x
 
-          if git diff --exit-code --quiet -- .github/workflows/; then
-            echo "No changes in .github/workflows/"
-            exit 0
-          else
-            username="$BAKIORG_GITHUB_WORKFLOW_UPDATER_APP_BOT_NAME"
-            app_bot_id="$BAKIORG_GITHUB_WORKFLOW_UPDATER_APP_BOT_ID"
-            email="$app_bot_id+$username@users.noreply.github.com"          
-            git config --global user.name "$username"
-            git config --global user.email "$email"          
-            git add ./.github/workflows/*.yaml
-            git commit -m "Auto-update GitHub Actions"
-            git push
-          fi
+          username="$BAKIORG_GITHUB_WORKFLOW_UPDATER_APP_BOT_NAME"
+          app_bot_id="$BAKIORG_GITHUB_WORKFLOW_UPDATER_APP_BOT_ID"
+          email="$app_bot_id+$username@users.noreply.github.com"          
+          git config --global user.name "$username"
+          git config --global user.email "$email"          
+          git add ./.github/'*'.yaml
+          git commit -m "Pin GitHub Actions versions"
+          git push
 
         env:
           BAKIORG_GITHUB_WORKFLOW_UPDATER_APP_BOT_NAME: ${{ vars.BAKIORG_GITHUB_WORKFLOW_UPDATER_APP_BOT_NAME }}
           BAKIORG_GITHUB_WORKFLOW_UPDATER_APP_BOT_ID: ${{ vars.BAKIORG_GITHUB_WORKFLOW_UPDATER_APP_BOT_ID }}
+
+      - name: Setup reviewdog
+        if: steps.find-relevant-diff.outputs.found == 'true' && inputs.update-type == 'pull-request-review'
+        uses: reviewdog/action-setup@v1.2.1
+
+      - name: Review pull request with 'reviewdog'
+        if: steps.find-relevant-diff.outputs.found == 'true' && inputs.update-type == 'pull-request-review'
+        run: |
+          set -x
+          
+          reviewdog -version
+
+          reviewdog -f=diff -f.diff.strip=1 -name="Pin GitHub Actions versions" -reporter=github-pr-review -tee < diff
+
+        env:
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ steps.create-token-for-github-app-bakiorg-github-workflow-updater.outputs.token }}

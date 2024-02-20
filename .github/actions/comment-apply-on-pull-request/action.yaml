@@ -38,7 +38,7 @@ runs:
         APPLIED_COMMIT_SHORT_SHA: ${{ inputs.applied-commit-short-sha }}
 
     - name: Add pull request comment with Terraform apply
-      uses: mshick/add-pr-comment@b8f338c590a895d50bcbfa6c5859251edc8952fc # v2.8.2
+      uses: mshick/add-pr-comment@v2.8.2
       with:
         issue: ${{ inputs.pull-request-number }}
         message-id: terraform-apply
