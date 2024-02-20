@@ -24,12 +24,28 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Checkout state
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+      - name: Create token for GitHub App 'bakiorg-github'
+        id: create-token-for-github-app-bakiorg-github
+        uses: actions/create-github-app-token@f4c6bf6752984b3a29fcc135a5e70eb792c40c6b # v1.8.0
         with:
-          fetch-depth: 0
-          ref: terraform-state
-          path: state/
+          app-id: ${{ vars.BAKIORG_GITHUB_APP_ID }}
+          private-key: ${{ secrets.BAKIORG_GITHUB_APP_PRIVATE_KEY }}
+
+      - name: Checkout state
+        run: |
+          set -x 
+          
+          mkdir state
+          # https://docs.github.com/en/apps/creating-github-apps/registering-a-github-app/choosing-permissions-for-a-github-app#choosing-permissions-for-git-access          
+          git clone "https://x-access-token:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY.git" state/
+          cd state/
+          git checkout "$GIT_REF"
+          cd ..
+
+        env:
+          GITHUB_TOKEN: ${{ steps.create-token-for-github-app-bakiorg-github.outputs.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GIT_REF: ${{ inputs.github_ref }}
 
       - name: Copy state to workdir
         run: cp state/terraform.tfstate.gpg .
@@ -148,9 +164,16 @@ jobs:
             echo "No changes in terraform.tfstate.gpg"
             exit 0
           else
-            git config --global user.name "github-actions[bot]"
-            git config --global user.email "github-actions[bot]+username@users.noreply.github.com"          
+            username="$BAKIORG_GITHUB_APP_BOT_NAME"
+            app_bot_id="$BAKIORG_GITHUB_APP_BOT_ID"
+            email="$app_bot_id+$username@users.noreply.github.com"          
+            git config --global user.name "$username"
+            git config --global user.email "$email"          
             git add terraform.tfstate.gpg
-            git commit -m "Auto-update terraform.tfstate.gpg"
+            git commit -m "Auto-update \`terraform.tfstate.gpg\`"
             git push
           fi
+
+        env:
+          BAKIORG_GITHUB_APP_BOT_NAME: ${{ vars.BAKIORG_GITHUB_APP_BOT_NAME }}
+          BAKIORG_GITHUB_APP_BOT_ID: ${{ vars.BAKIORG_GITHUB_APP_BOT_ID }}
