@@ -18,13 +18,7 @@ runs:
       run: |
         set -x
 
-        if cat "$TERRAFORM_APPLY_FILE_NAME" | grep "No changes. Your infrastructure matches the configuration."; then
-          echo "No apply to format"
-          exit 0
-        fi
-
-        cat "$TERRAFORM_APPLY_FILE_NAME" | awk '/ to destroy./{flag=1; next} flag' > tfapply_short
-        apply=$(cat tfapply_short)
+        apply=$(cat "$TERRAFORM_APPLY_FILE_NAME")
 
         cat > message.md << EOF
         The Terraform configuration changes merged in $APPLIED_COMMIT_SHORT_SHA resulted with the following resource changes:
@@ -46,6 +40,7 @@ runs:
     - name: Add pull request comment with Terraform apply
       uses: mshick/add-pr-comment@b8f338c590a895d50bcbfa6c5859251edc8952fc # v2.8.2
       with:
+        id: terraform-apply
         issue: ${{ inputs.pull-request-number }}
         message-path: message.md
         message-failure: |-
