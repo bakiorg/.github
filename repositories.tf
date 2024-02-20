@@ -16,7 +16,7 @@ module "github" {
   actions_variables_global = {
     bakiorg_github_app_name = {
       variable_key   = "BAKIORG_GITHUB_APP_NAME"
-      variable_value = data.github_app.bakiorg_github.id
+      variable_value = local.bakiorg_github_app_name
     }
 
     bakiorg_github_app_bot_name = {
